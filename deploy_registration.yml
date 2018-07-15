@@ -1,0 +1,40 @@
+---
+
+- name: Registering NSX Manager with VCenter and SSO
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: NSX Manager SSO Registration
+    nsx_sso_registration:
+      state: present
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      sso_lookupservice_url: 'lookupservice/sdk'
+      sso_lookupservice_port: 7444
+      sso_lookupservice_server: "{{ vcSsoHostname }}"
+      sso_admin_username: "{{ vcSsoUser }}"
+      sso_admin_password: "{{ vcSsoPassword }}"
+      #sso_certthumbprint:
+      accept_all_certs: true
+    register: register_to_sso
+
+  - name: NSX Manager VC Registration
+    nsx_vc_registration:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      vcenter: "{{ vcHostname }}"
+      vcusername: "{{ vcUser }}"
+      vcpassword: "{{ vcPassword }}"
+      #vccertthumbprint: 
+      accept_all_certs: true
+    register: register_to_vc
+
+
+
+
+
+#  - debug: var=register_to_sso
+#  - debug: var=register_to_vc

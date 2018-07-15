@@ -1,0 +1,24 @@
+---
+
+- name: Creating Logical Switches 
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: Create Logical Switches Transportzone "{{ globaltransportzone.name }}"
+    nsx_logical_switch:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      transportzone: "{{ globaltransportzone.name }}"
+      name: "{{ item.key }}"
+      controlplanemode: "{{ globaltransportzone.controlplanemode }}"
+      description: "{{ item.value.name }}"
+    with_dict: "{{ logical_switches }}"
+    register: create_logical_switch
+
+
+#  - debug: var=create_logical_switch

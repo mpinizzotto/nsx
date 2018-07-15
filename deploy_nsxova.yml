@@ -1,0 +1,34 @@
+---
+
+- name: Deploying NSX Manager to "{{ nsxmgr.vcenter }}"
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+  
+  tasks:
+  - name: Deploying NSX Manager "{{ nsxmgr.hostname }}"
+    nsx_deploy_ova:
+      ovftool_path: "{{ nsxmgr.ovftool_path }}"
+      datacenter: "{{ nsxmgr.datacenter }}"
+      datastore: "{{ nsxmgr.datastore  }}"
+      portgroup: "{{ nsxmgr.portgroup  }}"
+      cluster: "{{ nsxmgr.cluster  }}"
+      vmname: "{{ nsxmgr.vmname }}"
+      hostname: "{{ nsxmgr.hostname }}"
+      dns_server: "{{ nsxmgr.dns_server }}"
+      ntp_server: "{{ nsxmgr.ntp_server }}"
+      dns_domain: "{{ nsxmgr.dns_domain }}"
+      gateway: "{{ nsxmgr.gateway }}"
+      ip_address: "{{ nsxmgr.ip_address }}"
+      netmask: "{{ nsxmgr.netmask }}"
+      admin_password: "{{ nsxmgr.admin_password }}"
+      enable_password: "{{ nsxmgr.enable_password }}"
+      path_to_ova: "{{ nsxmgr.path_to_ova }}"
+      ova_file: "{{ nsxmgr.ova_file }}"
+      vcenter: "{{ nsxmgr.vcenter }}"
+      vcenter_user: "{{ nsxmgr.vcenter_user }}"
+      vcenter_passwd: "{{ nsxmgr.vcenter_passwd }}"
+    register: deploy_nsx_man
+
+#  - debug: var=deploy_nsx_man

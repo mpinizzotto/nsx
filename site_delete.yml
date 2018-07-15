@@ -1,0 +1,17 @@
+
+
+---
+
+- import_playbook: delete_esg1.yml
+- import_playbook: delete_esg2.yml
+- import_playbook: delete_dlr.yml
+- import_playbook: delete_logicalswitch.yml
+- import_playbook: delete_transportzone.yml
+- import_playbook: delete_segmentpool.yml
+- import_playbook: delete_vxlanprep_c1.yml
+- import_playbook: delete_clusterprep_c1.yml
+- import_playbook: delete_controllers.yml
+- import_playbook: delete_ippools.yml
+- import_playbook: delete_registration.yml
+
+

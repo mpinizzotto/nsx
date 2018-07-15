@@ -1,0 +1,67 @@
+
+---
+
+- name: Configuring OSPF on Edges and DLR
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: Configure OSPF "{{ esg1.name }}"
+    nsx_ospf:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      edge_name: "{{ esg1.name }}"
+      router_id: "{{ esg1.router_id }}"
+      default_originate: "{{ esg1.default_originate }}"
+      graceful_restart: "{{ esg1.graceful_restart }}"
+      ecmp: "{{ esg1.ecmp }}"
+      areas: 
+        - { area_id: "{{ area_abr.area_id }}", type: "{{ area_abr.type }}" }
+        - { area_id: "{{ area_stub.area_id }}", type: "{{ area_stub.type }}" }
+      area_map:
+        - { area_id: "{{ area_uplink1.area_id }}", vnic: "{{ area_uplink1.vnic }}", hello: "{{  area_uplink1.hello }}", dead: "{{ area_uplink1.deadtime }}", ignore_mtu: "{{ area_uplink1.ignore_mtu }}" }
+        - { area_id: "{{ area_uplink2.area_id }}", vnic: "{{ area_uplink2.vnic }}", hello: "{{  area_uplink2.hello }}", dead: "{{ area_uplink2.deadtime }}", ignore_mtu: "{{ area_uplink2.ignore_mtu }}" }
+        - { area_id: "{{ area_transit.area_id }}", vnic: "{{ area_transit.vnic }}", hello: "{{  area_transit.hello }}", dead: "{{ area_transit.deadtime }}", ignore_mtu: "{{ area_transit.ignore_mtu }}" }
+    register: ospf_esg
+    tags: ospf_esg
+
+  - name: Configure OSPF "{{ esg2.name }}"
+    nsx_ospf:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      edge_name: "{{ esg2.name }}"
+      router_id: "{{ esg2.router_id }}"
+      default_originate: "{{ esg2.default_originate }}"
+      graceful_restart: "{{ esg2.graceful_restart }}"
+      ecmp: "{{ esg2.ecmp }}"
+      areas:
+        - { area_id: "{{ area_abr.area_id }}", type: "{{ area_abr.type }}" }
+        - { area_id: "{{ area_stub.area_id }}", type: "{{ area_stub.type }}" }
+      area_map:
+        - { area_id: "{{ area_uplink1.area_id }}", vnic: "{{ area_uplink1.vnic }}" , hello: "{{  area_uplink1.hello }}", dead: "{{ area_uplink1.deadtime }}", ignore_mtu: "{{ area_uplink1.ignore_mtu }}" }
+        - { area_id: "{{ area_uplink2.area_id }}", vnic: "{{ area_uplink2.vnic }}" , hello: "{{  area_uplink2.hello }}", dead: "{{ area_uplink2.deadtime }}", ignore_mtu: "{{ area_uplink2.ignore_mtu }}" }
+        - { area_id: "{{ area_transit.area_id }}", vnic: "{{ area_transit.vnic }}" , hello: "{{  area_transit.hello }}", dead: "{{ area_transit.deadtime }}", ignore_mtu: "{{ area_transit.ignore_mtu }}" }
+    register: ospf_esg
+    tags: ospf_esg
+
+  - name: Configure OSPF "{{ dlr.name }}"
+    nsx_ospf:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      edge_name: "{{ dlr.name }}"
+      router_id: "{{ dlr.router_id }}"
+      forwarding_address: "{{ dlr.vnic0.ip }}"
+      protocol_address: "{{ dlr.protocol_address }}"
+      graceful_restart: "{{ dlr.graceful_restart }}"
+      ecmp: "{{ dlr.ecmp }}"
+      areas:
+        - { area_id: "{{ area_stub.area_id }}", type: "{{ area_stub.type }}" }
+      area_map:
+        - { area_id: "{{ area_transit.area_id  }}", vnic: 2,  hello: "{{ area_transit.hello }}", dead: "{{ area_transit.deadtime }}", ignore_mtu: "{{ area_transit.ignore_mtu }}" }
+    register: ospf_dlr
+    tags: ospf_dlr
+

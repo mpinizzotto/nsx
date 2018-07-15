@@ -1,0 +1,23 @@
+
+---
+
+- name: Creating Global Segment ID Pool
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+  - name: Segment Pool Configuration
+    nsx_segment_id_pool:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: absent
+      idpoolstart: "{{ globalsegmentid.idpoolstart }}"
+      idpoolend: "{{ globalsegmentid.idpoolend }}"
+      mcast_enabled: "{{ globalsegmentid.mcast_enabled }}"
+      #mcastpoolstart: "{{ globalsegmentid.mcastpoolstart }}"
+      #mcastpoolend: "{{ globalsegmentid.mcastpoolend }}"
+    register: create_segment_pool
+
+  #- debug: var=create_segment_pool

@@ -1,0 +1,43 @@
+---
+
+  
+- name: Creating IP Pools
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: Controller IP Pool creation
+    nsx_ippool:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      name: "{{ nsxIppools.controller.name }}"
+      start_ip: "{{ nsxIppools.controller.start_ip }}"
+      end_ip: "{{ nsxIppools.controller.end_ip }}"
+      prefix_length: "{{ nsxIppools.controller.prefix_length }}"
+      gateway: "{{ nsxIppools.controller.gateway }}"
+      dns_server_1: "{{ nsxIppools.controller.dns_server_1 }}"
+      dns_server_2: "{{ nsxIppools.controller.dns_server_2 }}"
+    register: create_controller_ip_pool
+
+  - name: VTEP IP Pool creation
+    nsx_ippool:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      name: "{{ nsxIppools.vteps.name }}"
+      start_ip: "{{ nsxIppools.vteps.start_ip }}"
+      end_ip: "{{ nsxIppools.vteps.end_ip }}"
+      prefix_length: "{{ nsxIppools.vteps.prefix_length }}"
+      gateway: "{{ nsxIppools.vteps.gateway }}"
+      dns_server_1: "{{ nsxIppools.vteps.dns_server_1 }}"
+      dns_server_2: "{{ nsxIppools.vteps.dns_server_2 }}"
+    register: create_vtep_ip_pool
+
+
+
+
+  - debug: var=create_controller_ip_pool.ippool_id
+

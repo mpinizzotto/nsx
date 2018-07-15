@@ -1,0 +1,31 @@
+---
+
+
+- name: Preparing Cluster "{{ targetClusters.cluster1.clusterName }}" for VXLAN (Installing VIBs)
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: gather moid for vxlan cluster1
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      cluster_name: "{{ targetClusters.cluster1.clusterName }}"
+      validate_certs: False
+    register: gather_moids_cl
+    tags: create_vxlan_cluster
+
+  - name: Cluster1 preparation
+    nsx_cluster_prep:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: absent
+      cluster_moid: "{{ gather_moids_cl.object_id }}"
+    register: cluster_prep
+
+#  - debug: var=cluster_prep

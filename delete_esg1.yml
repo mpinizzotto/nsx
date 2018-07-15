@@ -1,0 +1,110 @@
+
+---
+- name: Create Edge Services Gateway "{{ esg1.name }}"
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: gather moid for edge datastore
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      datastore_name: "{{ edge1_datastore }}"
+      validate_certs: False
+    register: gather_moids_ds
+    tags: esg_create
+
+  - name: gather moid for edge cluster
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      cluster_name: "{{ edge_cluster }}"
+      validate_certs: False
+    register: gather_moids_cl
+    tags: esg_create
+
+  - name: gather moid for uplink vnic0
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      portgroup_name: "{{ esg1.vnic0.portgroup }}"
+      validate_certs: False
+    register: gather_moids_upl_pg
+    tags: esg_create
+
+  - name: gather moid for uplink vnic1
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      portgroup_name: "{{ esg1.vnic1.portgroup }}"
+      validate_certs: False
+    register: gather_moids_up2_pg
+    tags: esg_create
+ 
+  - name: gather moid for uplink vnic2
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{  nsxmgr.datacenter  }}"
+      portgroup_name: "{{ esg1.vnic2.logicalswitch }}"
+      validate_certs: False
+    register: gather_moids_up3_pg
+    tags: esg_create
+
+  - name: ESG creation
+    nsx_edge_router:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: absent
+      name: "{{ esg1.name }}"
+      description: "{{ esg1.description }}"
+      appliance_size: "{{ esg1.size }}"
+      resourcepool_moid: "{{ gather_moids_cl.object_id }}"
+      datastore_moid: "{{ gather_moids_ds.object_id }}"
+      datacenter_moid: "{{ gather_moids_cl.datacenter_moid }}"
+      interfaces:
+        vnic0: {ip: "{{ esg1.vnic0.ip }}", prefix_len: "{{ esg1.vnic0.prefix }}", portgroup_id: "{{ gather_moids_upl_pg.object_id }}", name: "{{ esg1.vnic0.name }}", iftype: "{{ esg1.vnic0.type }}" }
+        vnic1: {ip: "{{ esg1.vnic1.ip }}", prefix_len: "{{ esg1.vnic1.prefix }}", portgroup_id: "{{ gather_moids_up2_pg.object_id }}" , name: "{{ esg1.vnic1.name }}", iftype: "{{ esg1.vnic1.type }}" }
+        vnic2: {ip: "{{ esg1.vnic2.ip }}", prefix_len: "{{ esg1.vnic2.prefix }}", logical_switch: "{{ esg1.vnic2.logicalswitch }}", name: "{{ esg1.vnic2.name }}", iftype: "{{ esg1.vnic2.type }}" }
+      #default_gateway: "{{ esg1.default_gateway }}"  
+      #default_gateway_adminDistance: "{{ esg1.default_gateway_adminDistance }}"
+      routes:
+        - {network: '0.0.0.0/0', next_hop: '172.16.33.1', description: 'Default Route'}
+        - {network: '10.20.0.0/16', next_hop: '10.20.100.9', description: 'summary route'}
+      remote_access: "{{ esg1.remote_access }}"
+      username: "{{ esg1.username }}"
+      password: "{{ esg1.password }}"
+      firewall: "{{ esg1.firewall }}"
+      ha_enabled: "{{ esg1.ha_enabled }}"
+    register: create_esg
+    tags: esg_create
+
+  - debug: var=create_esg
+    tags: debug
+
+
+#  - name: ESG Delete
+#    nsx_edge_router:
+#      nsxmanager_spec: "{{ nsxmanager_spec }}"
+#      state: absent
+#      name: 'ansibleESG_testplay'
+#      resourcepool_moid: ''
+#      datastore_moid: ''
+#      datacenter_moid: ''
+#      interfaces: {}
+#    register: delete_esg
+#    tags: esg_delete
+
+

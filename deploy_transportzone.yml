@@ -1,0 +1,48 @@
+
+---
+
+- name: Creating Global Transportzone 
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: gather moid for cluster1
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      cluster_name: "{{ targetClusters.cluster1.clusterName }}"
+      validate_certs: False
+    register: gather_moids_cl1
+    tags: create_controller_cluster
+
+# Uncomment for second cluster
+#  - name: gather moid for cluster1
+#    vcenter_gather_moids:
+#      hostname: "{{ vcHostname }}"
+#      username: "{{ vcUser }}"
+#      password: "{{ vcPassword }}"
+#      datacenter_name: "{{ nsxmgr.datacenter }}"
+#      cluster_name: "{{ targetClusters.cluster2.clusterName }}"
+#      validate_certs: False
+#    register: gather_moids_cl2
+#    tags: create_controller_cluster
+
+  - name: Transport Zone Creation
+    nsx_transportzone:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: 'present'
+      name: "{{ globaltransportzone.name }}"
+      controlplanemode: "{{ globaltransportzone.controlplanemode }}"
+      description: "{{ globaltransportzone.description }}"
+      cluster_moid_list:
+        - "{{ gather_moids_cl1.object_id }}"
+#        - "{{ gather_moids_cl2.object_id }}"
+    register: transport_zone
+
+  - debug: var=transport_zone

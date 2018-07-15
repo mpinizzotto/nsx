@@ -1,0 +1,96 @@
+---
+
+- name: Deploying Distributed Logical Router
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: gather moid for ds
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      datastore_name: "{{ dlr.datastore }}"
+      validate_certs: False
+    register: gather_moids_ds
+    tags: dlr_create
+
+  - name: gather moid for cl
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      cluster_name: "{{ dlr.cluster }}"
+      validate_certs: False
+    register: gather_moids_cl
+    tags: dlr_create
+
+  - name: gather moid for mgmt portgroup
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{  vcPassword  }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      portgroup_name: "{{ dlr.mgmt_portgroup }}"
+      validate_certs: False
+    register: gather_moids_pg
+    tags: dlr_create
+
+  - name: Deploy Distributed Logical Router 
+    nsx_dlr:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: absent
+      name: "{{ dlr.name }}"
+      description: "{{ dlr.description }}"
+      resourcepool_moid: "{{ gather_moids_cl.object_id }}"
+      datastore_moid: "{{ gather_moids_ds.object_id }}"
+      datacenter_moid: "{{ gather_moids_cl.datacenter_moid }}"
+      mgmt_portgroup_moid: "{{ gather_moids_pg.object_id }}"
+      interfaces:
+        - {name: "{{ dlr.vnic0.name }}", ip: "{{ dlr.vnic0.ip }}", prefix_len: "{{ dlr.vnic0.prefix_len }}", logical_switch: "{{ dlr.vnic0.logical_switch }}", iftype: "{{ dlr.vnic0.type }}" }
+        - {name: "{{ dlr.vnic1.name }}", ip: "{{ dlr.vnic1.ip }}", prefix_len: "{{ dlr.vnic1.prefix_len }}", logical_switch: "{{ dlr.vnic1.logical_switch }}", iftype: "{{ dlr.vnic1.type }}" }
+        - {name: "{{ dlr.vnic2.name }}", ip: "{{ dlr.vnic2.ip }}", prefix_len: "{{ dlr.vnic2.prefix_len }}", logical_switch: "{{ dlr.vnic2.logical_switch }}", iftype: "{{ dlr.vnic2.type }}" }
+     # routes:
+        #- {network: '10.11.22.0/24', next_hop: '172.16.1.2', admin_distance: '1', mtu: '1500', description: 'very important route'}
+      #default_gateway: "{{ dlr.default_gateway }}"
+      #default_gateway_adminDistance: "{{ dlr.default_gateway_adminDistance }}"
+      remote_access: "{{ dlr.remote_access }}"
+      username: "{{ dlr.username }}"
+      password: "{{ dlr.password }}"
+      ha_enabled: "{{ dlr.ha_enabled }}"
+      ha_deadtime: "{{ dlr.ha_deadtime }}"
+    register: create_dlr
+    tags: dlr_create
+
+#  - debug: var=create_dlr
+    tags: debug
+
+
+
+
+
+
+
+
+
+#  - name: DLR Delete
+#    nsx_dlr:
+#      nsxmanager_spec: "{{ nsxmanager_spec }}"
+#      state: absent
+#      name: 'ansibleDLR'
+#      resourcepool_moid: ''
+#      datastore_moid: ''
+#      datacenter_moid: ''
+#      mgmt_portgroup_moid: ''
+#      interfaces: []
+#    register: delete_dlr
+#    tags: dlr_delete
+
+#  - debug: var=delete_dlr
+#    tags: debug

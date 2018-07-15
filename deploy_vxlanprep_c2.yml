@@ -1,0 +1,63 @@
+
+---
+
+- name: Configuring VXLAN for Cluster "{{ targetClusters.cluster2.clusterName }}" 
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+  
+  tasks:
+  
+ -  name: gather moid for cluster
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      cluster_name: "{{ targetClusters.cluster2.clusterName }}"
+      validate_certs: False
+    register: gather_moids_cl
+    tags: create_controller_cluster
+
+ -  name: gather moid for dvs
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{  nsxmgr.datacenter }}"
+      dvs_name: "{{ targetClusters.cluster2.dvs }}"
+      validate_certs: False
+    register: gather_moids_dvs
+    tags: create_controller_cluster
+
+ - name: VTEP IP pool creation
+    nsx_ippool:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      name: "{{ nsxIppools.vteps.name }}"
+      start_ip: "{{ nsxIppools.vteps.start_ip }}"
+      end_ip: "{{ nsxIppools.vteps.end_ip }}"
+      prefix_length: "{{ nsxIppools.vteps.prefix_length }}"
+      gateway: "{{ nsxIppools.vteps.gateway }}"
+      dns_server_1: "{{ nsxIppools.vteps.dns_server_1 }}"
+      dns_server_2: "{{ nsxIppools.vteps.dns_server_2 }}"
+    register: create_vtep_ip_pool
+
+#  - debug: var=create_vtep_ip_pool.ippool_id
+
+  - name: Cluster2 VXLAN Preparation
+    nsx_vxlan_prep:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      cluster_moid: "{{ gather_moids_cl.object_id }}"
+      dvs_moid: "{{ gather_moids_dvs.object_id }}"
+      ippool_id: "{{  create_vtep_ip_pool.ippool_id }}"
+      vlan_id: "{{ targetClusters.cluster2.dvs }}"
+      vmknic_count: "{{ targetClusters.cluster2.vmknic_count }}" 
+      teaming: "{{ targetClusters.cluster2.teaming }}"
+      mtu: "{{ targetClusters.cluster2.mtu }}"
+    register: vxlan_prep
+  
+#  - debug: var=vxlan_prep

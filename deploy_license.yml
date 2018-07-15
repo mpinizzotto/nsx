@@ -1,0 +1,18 @@
+---
+- name: Applying NSX Licensing
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+  tasks:
+  - name: Apply NSX License
+    vcenter_nsx_license:
+      vcenter: "{{ vcHostname }}"
+      vcenter_user: "{{ vcUser }}"
+      vcenter_passwd: "{{ vcPassword }}"
+      license_key: "{{ license_key }}"
+    register: nsxlic
+    tags: nsx_license
+
+  - debug: msg="{{ nsxlic }}"

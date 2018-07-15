@@ -1,0 +1,350 @@
+##########################################################################################
+# the following section defines the vCenter / vSphere environment
+##########################################################################################
+
+#answer file for home site
+
+
+
+# NSX Manager deployment  variables
+
+nsxmgr:
+  ovftool_path: /usr/bin        #path for linux
+  datacenter: 'home.local'
+  datastore: 'SATA_01'
+  portgroup: 'MGMT'
+  cluster: 'Mgmt-Edge-Home'
+  vmname: 'nsxmgr-01'
+  hostname: 'nsxmgr-01.home.local'
+  dns_server: '172.16.30.22'
+  ntp_server: '0.pool.ntp.org'
+  dns_domain: 'home.local'
+  gateway: '172.16.30.1'
+  ip_address: '172.16.30.208'
+  netmask: '255.255.255.0'
+  admin_password: 'P@ssw0rd'
+  enable_password: 'P@ssw0rd'
+  path_to_ova: /home/OVAs
+  ova_file: 'VMware-NSX-Manager-6.3.6-8085122.ova'
+  vcenter: 'vcsa-01.home.local'                      #vcenter where nsx manger will be deployed
+  vcenter_user: 'administrator@vsphere.local'
+  vcenter_passwd: 'P@ssw0rd123!'
+  
+# with NSX 6.2.2 and later you need licnse in order to prepare the hosts
+# Uncomment the line below and provide valid license key, otherwise the deployment will fail before preparing the clusters
+
+license_key: 'QH41Q-47H40-K8UC8-0D1HK-8WUPM'
+#license_key: !vault |
+#             $ANSIBLE_VAULT;1.1;AES256
+#             62666334653730613865616437626236366134396431633665663839613862383233613539373132
+#             3961633365306532313338383835313536323833326266360a313461653266303335636330376136
+#             66333034396132323362653862323861353564373931346165356639626439306134663464303364
+#             3033393235333237660a363835303339343666396138343236306336336336383234346435383036
+#             61366363306439333563353665393539333535376261613031396235646632393436
+
+
+######################################################################
+# Target 'register' vCenter section
+# the following section defines the vCenter / vSphere environment
+# to which NSX Manager will be registered to. This can be the same as deploy vCenter,
+# or a separate 'payload' vCenter
+#####################################################################
+
+
+vcHostname: "vcsa-01.home.local"
+vcIpAddress: "172.16.30.21"
+vcUser: "administrator@vsphere.local"
+vcPassword: "P@ssw0rd123!"
+
+vcSsoHostname: "vcsa-01.home.local"
+vcSsoUser: "administrator@vsphere.local"
+vcSsoPassword: "P@ssw0rd123!"
+
+
+############################################
+# NSX Manager credentials and RAML file path
+############################################
+
+
+nsxmanager_spec:
+  raml_file: '/nsxraml/nsxvapi.raml'
+  host: "{{ nsxmgr.ip_address }}"
+  user: 'admin'
+  password: "{{ nsxmgr.admin_password }}"
+
+
+###################################################################
+#controller deployment variables, transportzone and IP pools
+###################################################################
+
+nsxcontroller:
+  cluster_name: 'Mgmt-Edge-Home'
+  datastore_name: 'SATA_01'
+  portgroup_name: 'MGMT'
+  deploytype: 'lab'
+  password: 'P@ssw0rd123!123!'
+  syslog_server: '172.16.47.50'
+  datacenter_name: 'home.local'
+  #VdsName: 'vDS-Remote' #not needed?
+
+
+globaltransportzone:
+  name: 'GLOBAL-TZ-Home'
+  description: 'Global TZ'
+  controlplanemode: 'UNICAST_MODE'
+
+# Global Segment ID for VXLAN
+globalsegmentid:
+  idpoolstart: '5000'
+  idpoolend: '7000'
+  mcast_enabled: 'false'
+  #mcastpoolstart: ''
+  #mcastpoolend: ''
+
+
+#########################################################################
+# Target vCenter Cluster Section
+# the following section defines which clusters in the target vCenter should
+# be prepared for NSX (VIB deployment) and VXLAN
+#########################################################################
+
+targetClusters:
+  cluster1:
+    clusterName: 'Mgmt-Edge-Home'
+    dvs: 'vDS-Home'
+    vmknic_count: '1'
+    teaming: 'LOADBALANCE_SRCID'
+    mtu: '9000'
+  cluster2:
+    clusterName: 'Compute-Home'
+    dvs: 'vDS-Home'
+    vmknic_count: '1'
+    teaming: 'LOADBALANCE_SRCID'
+    mtu: '9000'
+
+
+#Controller and VTEP pools
+nsxIppools:
+  controller:
+    name: 'CONTROLLER-1'
+    start_ip: '172.16.30.210'
+    end_ip: '172.16.30.212'
+    prefix_length: '24'
+    gateway: '172.16.30.1'
+    dns_server_1: '172.16.30.22'
+    dns_server_2: '4.2.2.2'
+  vteps:
+    name: 'VTEP-1'
+    start_ip: '172.16.49.101'
+    end_ip: '172.16.49.102'
+    prefix_length: '24'
+    gateway: '172.16.49.1'
+    dns_server_1: '172.16.30.22'
+    dns_server_2: '4.2.2.2'
+    vtep_vlan_id: '49'
+#############################################################################
+# Logical Switch/DLR Interfaces
+#############################################################################
+
+logical_switches:
+  LS-TRANSIT-NET: {name: 'TRANSIT-UPLINK', ip: '10.10.100.9', prefix_len: 24, logical_switch: 'LS-TRANSIT-NET', iftype: 'uplink'}
+  LS-WEB: {name: 'LIF-WEB', ip: '10.10.10.1', network: '10.10.10.0/24', prefix_len: 24, logical_switch: 'LS-WEB', iftype: 'internal'}
+  LS-APP: {name: 'LIF-APP', ip: '10.10.11.1', network: '10.10.11.0/24', prefix_len: 24, logical_switch: 'LS-APP', iftype: 'internal'}
+  LS-DB: {name: 'LIF-DB', ip: '10.10.12.1', network: '10.10.12.0/24', prefix_len: 24, logical_switch: 'LS-DB', iftype: 'internal'}
+  LS-APP02: {name: 'LIF-APP02', ip: '10.10.13.1', network: '10.10.13.0/24', prefix_len: 24, logical_switch: 'LS-APP02', iftype: 'internal'}
+  LS-APP03: {name: 'LIF-APP03', ip: '10.10.14.1', network: '10.10.14.0/24', prefix_len: 24, logical_switch: 'LS-APP03', iftype: 'internal'}
+
+
+###############################################################################
+# Edge Deployment Section
+# the following section defines parameters for deploying edge services gateways
+##############################################################################
+
+#global variables
+edge1_datastore: 'SATA_01'
+edge2_datastore: 'SATA_01'                     
+edge_cluster: 'Mgmt-Edge-Home'    
+
+esg1:
+  name: 'ESG-01'
+  description: 'Edge Router 01'
+  size: 'compact'
+  remote_access: 'true'
+  username: 'admin'
+  password: 'P@ssw0rd123!123!'
+  firewall: 'false'
+  ha_enabled: 'false'
+  default_gateway: '172.16.31.1'
+  default_gateway_adminDistance: '5'
+  vnic0:
+    portgroup: 'UPLINK-A'
+    name: 'UPLINK-A'
+    ip: '172.16.31.2'
+    prefix: '24'
+    type: 'uplink'
+  vnic1:
+    portgroup: 'UPLINK-B'
+    name: 'UPLINK-B'
+    ip: '172.16.32.2'
+    prefix: '24'
+    type: 'uplink'
+  vnic2:
+    logicalswitch: 'LS-TRANSIT-NET'
+    name: 'TRANSIT'
+    ip: '10.10.100.1'
+    prefix: '24'
+    type: 'internal'
+  #OSPF Configuration
+  router_id: '172.16.31.2'
+  default_originate: 'false'
+  graceful_restart: 'false'
+  ecmp: 'true'
+
+
+#=============================
+
+esg2:
+  name: 'ESG-02'
+  description: 'Edge Router 02'
+  size: 'compact'
+  remote_access: 'true'
+  username: 'admin'
+  password: 'P@ssw0rd123!123!'
+  firewall: 'false'
+  ha_enabled: 'false'
+  default_gateway: '172.16.31.1'
+  default_gateway_adminDistance: '5'
+  vnic0:
+    portgroup: 'UPLINK-A'
+    name: 'UPLINK-A'
+    ip: '172.16.31.3'
+    prefix: '24'
+    type: 'uplink'
+  vnic1:
+    portgroup: 'UPLINK-B'
+    name: 'UPLINK-B'
+    ip: '172.16.32.3'
+    prefix: '24'
+    type: 'uplink'
+  vnic2:
+    logicalswitch: 'LS-TRANSIT-NET'
+    name: 'TRANSIT'
+    ip: '10.10.100.2'
+    prefix: '24'
+    type: 'internal'
+  #OSPF Configuration
+  router_id: '172.16.31.3'
+  default_originate: 'false'
+  graceful_restart: 'false'
+  ecmp: 'true'
+
+
+#OSPF variable definitions
+area_abr:
+  area_id: '0'
+  type: 'normal'
+area_stub:
+  area_id: '10'
+  type: 'nssa'
+
+#Area to interface Mapping
+area_uplink1:
+  area_id: '0'
+  vnic: '0'
+  hello: '1'
+  deadtime: '3'
+  #priority:
+  #cost:
+  ignore_mtu: 'True'
+area_uplink2:
+  area_id: '0'
+  vnic: '1'
+  hello: '1'
+  deadtime: '3'
+  #priority:
+  #cost:
+  ignore_mtu: 'True'
+area_transit:
+  area_id: '10'
+  vnic: '2'
+  hello: '1'
+  deadtime: '3'
+  #priority:
+  #cost:
+  ignore_mtu: 'True'
+
+
+##########################################
+# DLR Section
+# Following section defines variables for the Distributed logical Router
+#########################################
+
+dlr:
+  name: 'DLR-HOME'
+  description: 'Global DLR'
+  cluster: 'Mgmt-Edge-Home'
+  datastore: 'SATA_01'
+  mgmt_portgroup: 'MGMT' #Portgroup used for HA
+  #default_gateway: 
+  #default_gateway_adminDistance:
+  remote_access: 'true'
+  username: 'admin'
+  password: 'P@ssw0rd123!123!'
+  ha_enabled: 'false'
+  ha_deadtime: '15'
+  router_id: '10.10.100.9'
+  protocol_address: '10.10.100.15'
+  graceful_restart: 'false'
+  ecmp: 'true'
+  #DLR Interface configuration
+  #vnic0 maps to uplink interface
+  vnic0:
+    name: 'TRANSIT-UPLINK'
+    ip: '10.10.100.9'
+    prefix_len: '24'
+    logical_switch: 'LS-TRANSIT-NET'
+    type: 'uplink'
+  vnic1:
+    name: 'LIF-WEB'
+    ip: '10.10.10.1'
+    prefix_len: '24'
+    logical_switch: 'LS-WEB'
+    type: 'internal'
+  vnic2:
+    name: 'LIF-APP'
+    ip: '10.10.11.1'
+    prefix_len: '24'
+    logical_switch: 'LS-APP'
+    type: 'internal'  
+
+
+#######################################
+# Static Routing and Redistribution
+######################################
+
+
+prefix1:
+  name: 'REDISTRIBUTE-STATIC'
+  network: '10.10.0.0/16'
+  next_hop: '10.10.100.9'
+  description: 'Summary Route'
+prefix2:
+  name: 'DEFAULT-ROUTE'
+  network: '0.0.0.0/0'
+  next_hop: '172.16.31.1'
+  description: 'Default Route'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

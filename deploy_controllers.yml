@@ -1,0 +1,80 @@
+
+---
+
+- name: Deploying Controllers - Deployment Type "{{ nsxcontroller.deploytype }}"
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+  
+  tasks:
+
+  - name: gather moid for controller datastore
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      datastore_name: "{{ nsxcontroller.datastore_name }}"
+      validate_certs: False
+    register: gather_moids_ds
+    tags: create_controller_cluster
+  
+  - name: gather moid for controller portgroup
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      portgroup_name: "{{ nsxcontroller.portgroup_name }}"
+      validate_certs: False
+    register: gather_moids_pg
+    tags: create_controller_cluster
+
+  - name: gather moid for controller cluster
+    vcenter_gather_moids:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword }}"
+      datacenter_name: "{{ nsxmgr.datacenter }}"
+      cluster_name: "{{ nsxcontroller.cluster_name }}"
+      validate_certs: False
+    register: gather_moids_cl
+    tags: create_controller_cluster
+
+  - name: Controller IP Pool creation
+    nsx_ippool:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      name: "{{ nsxIppools.controller.name }}"
+      start_ip: "{{ nsxIppools.controller.start_ip }}"
+      end_ip: "{{ nsxIppools.controller.end_ip }}"
+      prefix_length: "{{ nsxIppools.controller.prefix_length }}"
+      gateway: "{{ nsxIppools.controller.gateway }}"
+      dns_server_1: "{{ nsxIppools.controller.dns_server_1 }}"
+      dns_server_2: "{{ nsxIppools.controller.dns_server_2 }}"
+    register: create_controller_ip_pool
+
+#  - debug: var=create_controller_ip_pool.ippool_id
+
+  - name: Controller Cluster Creation
+    nsx_controllers:
+      name: 'Controller'
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      deploytype: "{{ nsxcontroller.deploytype }}"  
+      syslog_server: "{{ nsxcontroller.syslog_server }}"
+      ippool_id: "{{ create_controller_ip_pool.ippool_id  }}"
+      resourcepool_moid: "{{ gather_moids_cl.object_id }}"
+      #host_moid:   
+      datastore_moid: "{{ gather_moids_ds.object_id }}" 
+      network_moid: "{{  gather_moids_pg.object_id }}"
+      password: "{{ nsxcontroller.password }}"
+    register: create_controller_cluster
+
+#  - debug: var=create_controller_cluster
+ 
+
+
+#deploytype: -"lab" - creates one controller, "single" - will add a single controller to up to max of 3, "full" - will deploy 3 controllers
