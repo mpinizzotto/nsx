@@ -230,7 +230,7 @@ esg2:
 
 
 #OSPF variable definitions
-area_abr:
+area_backbone:
   area_id: '0'
   type: 'normal'
 area_stub:
@@ -239,7 +239,7 @@ area_stub:
 
 #Area to interface Mapping
 area_uplink1:
-  area_id: '0'
+  area_id: '20'
   vnic: '0'
   hello: '1'
   deadtime: '3'
@@ -247,7 +247,7 @@ area_uplink1:
   #cost:
   ignore_mtu: 'True'
 area_uplink2:
-  area_id: '0'
+  area_id: '20'
   vnic: '1'
   hello: '1'
   deadtime: '3'

@@ -20,7 +20,7 @@
       graceful_restart: "{{ esg1.graceful_restart }}"
       ecmp: "{{ esg1.ecmp }}"
       areas: 
-        - { area_id: "{{ area_abr.area_id }}", type: "{{ area_abr.type }}" }
+        #- { area_id: "{{ area_backbone.area_id }}", type: "{{ area_abr.type }}" }
         - { area_id: "{{ area_stub.area_id }}", type: "{{ area_stub.type }}" }
       area_map:
         - { area_id: "{{ area_uplink1.area_id }}", vnic: "{{ area_uplink1.vnic }}", hello: "{{  area_uplink1.hello }}", dead: "{{ area_uplink1.deadtime }}", ignore_mtu: "{{ area_uplink1.ignore_mtu }}" }
@@ -39,7 +39,7 @@
       graceful_restart: "{{ esg2.graceful_restart }}"
       ecmp: "{{ esg2.ecmp }}"
       areas:
-        - { area_id: "{{ area_abr.area_id }}", type: "{{ area_abr.type }}" }
+        #- { area_id: "{{ area_backbone.area_id }}", type: "{{ area_abr.type }}" }
         - { area_id: "{{ area_stub.area_id }}", type: "{{ area_stub.type }}" }
       area_map:
         - { area_id: "{{ area_uplink1.area_id }}", vnic: "{{ area_uplink1.vnic }}" , hello: "{{  area_uplink1.hello }}", dead: "{{ area_uplink1.deadtime }}", ignore_mtu: "{{ area_uplink1.ignore_mtu }}" }
