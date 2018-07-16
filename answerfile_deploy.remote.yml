@@ -2,11 +2,10 @@
 # the following section defines the vCenter / vSphere environment
 ##########################################################################################
 
-#answer file for remote site
+#answerfile for remote site
 
 
-
-# NSX Manager deployment  variables
+# NSX Manager deployment variables
 
 nsxmgr:
   ovftool_path: /usr/bin        #path for linux
@@ -30,24 +29,14 @@ nsxmgr:
   vcenter_user: 'administrator@vsphere.local'
   vcenter_passwd: 'P@ssw0rd123!'
   
-# with NSX 6.2.2 and later you need licnse in order to prepare the hosts
-# Uncomment the line below and provide valid license key, otherwise the deployment will fail before preparing the clusters
-
-license_key: 'QH41Q-47H40-K8UC8-0D1HK-8WUPM'
-#license_key: !vault |
-#             $ANSIBLE_VAULT;1.1;AES256
-#             62666334653730613865616437626236366134396431633665663839613862383233613539373132
-#             3961633365306532313338383835313536323833326266360a313461653266303335636330376136
-#             66333034396132323362653862323861353564373931346165356639626439306134663464303364
-#             3033393235333237660a363835303339343666396138343236306336336336383234346435383036
-#             61366363306439333563353665393539333535376261613031396235646632393436
+ 
+# Uncomment the line below and provide valid license key
+#license_key: 'XXXXXXXXXXXXXXXXXXXXX'
 
 
 ######################################################################
-# Target 'register' vCenter section
-# the following section defines the vCenter / vSphere environment
-# to which NSX Manager will be registered to. This can be the same as deploy vCenter,
-# or a separate 'payload' vCenter
+# The following section defines the vCenter / vSphere environment
+# to which NSX Manager will be registered to. 
 #####################################################################
 
 
@@ -74,7 +63,7 @@ nsxmanager_spec:
 
 
 ###################################################################
-#controller deployment variables, transportzone and IP pools
+#Controller and Transportzone variables
 ###################################################################
 
 nsxcontroller:
@@ -103,7 +92,7 @@ globalsegmentid:
 
 
 #########################################################################
-# Target vCenter Cluster Section
+# Target vCenter Cluster Section:
 # the following section defines which clusters in the target vCenter should
 # be prepared for NSX (VIB deployment) and VXLAN
 #########################################################################
@@ -142,6 +131,7 @@ nsxIppools:
     dns_server_1: '172.16.30.22'
     dns_server_2: '4.2.2.2'
     vtep_vlan_id: '50'
+
 #############################################################################
 # Logical Switch/DLR Interfaces
 #############################################################################
@@ -333,7 +323,6 @@ prefix2:
   network: '0.0.0.0/0'
   next_hop: '172.16.33.1'
   description: 'Default Route'
-
 
 
 
