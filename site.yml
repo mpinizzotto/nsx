@@ -1,4 +1,4 @@
-
+#Single site deployment with two (2) ECMP ESGs
 
 ---
 
@@ -8,9 +8,9 @@
 - import_playbook: deploy_ippools.yml
 - import_playbook: deploy_controllers.yml 
 - import_playbook: deploy_clusterprep_c1.yml
-#- import_playbook: deploy_clusterprep_c2.yml
+- import_playbook: deploy_clusterprep_c2.yml
 - import_playbook: deploy_vxlanprep_c1.yml
-#- import_playbook: deploy_vxlanprep_c2.yml
+- import_playbook: deploy_vxlanprep_c2.yml
 - import_playbook: deploy_segmentpool.yml
 - import_playbook: deploy_transportzone.yml
 - import_playbook: deploy_logicalswitch.yml
