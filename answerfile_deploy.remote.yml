@@ -101,13 +101,13 @@ targetClusters:
   cluster1:
     clusterName: 'Mgmt-Edge-Remote'
     dvs: 'vDS-Remote'
-    vmknic_count: '1'
+    vmknic_count: '2'
     teaming: 'LOADBALANCE_SRCID'
     mtu: '9000'
   cluster2:
     clusterName: 'Compute-Remote'
     dvs: 'vDS-Home'
-    vmknic_count: '1'
+    vmknic_count: '2'
     teaming: 'LOADBALANCE_SRCID'
     mtu: '9000'
 
@@ -284,7 +284,7 @@ dlr:
   ha_deadtime: '15'
   router_id: '10.20.100.9'
   protocol_address: '10.20.100.15'
-  graceful_restart: 'false'
+  graceful_restart: 'true'
   ecmp: 'true'
   #DLR Interface configuration
   #vnic0 maps to uplink interface
