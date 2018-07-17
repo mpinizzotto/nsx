@@ -46,7 +46,7 @@
       edge_name: "{{ dlr.name }}"
       rules:
       #Redistributes connected routes - uncomment if needed
-	   #- {learner: 'ospf', priority: 0, static: false, connected: true, bgp: false, ospf: false, action: 'permit'}
+      #- {learner: 'ospf', priority: 0, static: false, connected: true, bgp: false, ospf: false, action: 'permit'}
     register: redist
     tags: redist
 
