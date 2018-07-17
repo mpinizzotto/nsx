@@ -34,7 +34,7 @@
         - {name: "{{ prefix1.name }}", network: "{{ prefix1.network }}" }
       rules:
         #Redistribute summary route 
-		- {learner: 'ospf', priority: 0, static: 'true', connected: 'false', bgp: 'false', ospf: 'false', prefix: "{{ prefix1.name }}", action: 'permit'}
+        - {learner: 'ospf', priority: 0, static: 'true', connected: 'false', bgp: 'false', ospf: 'false', prefix: "{{ prefix1.name }}", action: 'permit'}
     register: redist
     tags: redist
 
@@ -46,7 +46,7 @@
       edge_name: "{{ dlr.name }}"
       rules:
         #Redistributes connected routes - uncomment if needed
-		#- {learner: 'ospf', priority: 0, static: false, connected: true, bgp: false, ospf: false, action: 'permit'}
+       #- {learner: 'ospf', priority: 0, static: false, connected: true, bgp: false, ospf: false, action: 'permit'}
     register: redist
     tags: redist
 
