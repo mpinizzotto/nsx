@@ -26,7 +26,7 @@
       affinity_rule: False
     register: esg_affinity
   
-#  - debug: var=esg_affinity
+    #- debug: var=esg_affinity
  
   - name: Creating DRS Anti-Affinity Rule for DLR Control VMs
     vmware_vm_vm_drs_rule:
@@ -43,7 +43,5 @@
       mandatory: True
       affinity_rule: False
     register: dlr_affinity
-	
-#  - debug: var=dlr_affinity
+    #- debug: var=dlr_affinity
                               
-                                                  
