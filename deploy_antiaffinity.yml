@@ -42,8 +42,8 @@
       enabled: True
       mandatory: True
       affinity_rule: False
-	register: dlr_affinity
-  
+    register: dlr_affinity
+	
 #  - debug: var=dlr_affinity
 	  
 	  
