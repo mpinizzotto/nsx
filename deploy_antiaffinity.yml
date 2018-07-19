@@ -1,0 +1,49 @@
+
+---
+
+- name: Creating Anti-affinity rules for "{{ targetClusters.cluster1.clusterName }}" cluster
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: Creating DRS Anti-Affinity Rule for Edge Services Gateways
+    vmware_vm_vm_drs_rule:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword  }}"
+      cluster_name: "{{ targetClusters.cluster1.clusterName }}"
+      validate_certs: no
+      vms:
+          - "{{ esg1.name }}-0"
+          - "{{ esg2.name }}-0"
+      drs_rule_name: anti-affinity-rule-esg
+      enabled: True
+      mandatory: True
+      affinity_rule: False
+    register: esg_affinity
+  
+#  - debug: var=esg_affinity
+ 
+  - name: Creating DRS Anti-Affinity Rule for DLR Control VMs
+    vmware_vm_vm_drs_rule:
+      hostname: "{{ vcHostname }}"
+      username: "{{ vcUser }}"
+      password: "{{ vcPassword  }}"
+      cluster_name: "{{ targetClusters.cluster1.clusterName }}"
+      validate_certs: no
+      vms:
+          - "{{ dlr.name }}-0"
+         #- "{{ dlr.name }}-1"
+      drs_rule_name: anti-affinity-rule-dlr
+      enabled: True
+      mandatory: True
+      affinity_rule: False
+	register: dlr_affinity
+  
+#  - debug: var=dlr_affinity
+	  
+	  
