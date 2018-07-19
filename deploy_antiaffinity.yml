@@ -45,5 +45,5 @@
     register: dlr_affinity
 	
 #  - debug: var=dlr_affinity
-	  
-	  
+                              
+                                                  
