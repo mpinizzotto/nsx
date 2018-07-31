@@ -158,7 +158,7 @@ edge_cluster: 'Mgmt-Edge-Remote'
 esg1:
   name: 'ESG-01'
   description: 'Edge Router 01'
-  size: 'compact'
+  size: 'compact'                      #choices=['compact', 'large', 'xlarge', 'quadlarge'], defaults to 'large'
   remote_access: 'true'
   username: 'admin'
   password: 'P@ssw0rd123!123!'

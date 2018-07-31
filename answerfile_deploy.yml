@@ -194,7 +194,7 @@ esg1:
 esg2:
   name: 'ESG-02'
   description: 'Edge Router 02'
-  size: 'compact'
+  size: 'compact'                   #choices= ['compact', 'large', 'xlarge', 'quadlarge'], defaults to 'large'
   remote_access: 'true'
   username: 'admin'
   password: 'P@ssw0rd123!123!'
