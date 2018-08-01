@@ -2,7 +2,6 @@
 #coding=utf-8
 
 
-
 def get_edge(client_session, edge_name):
 
     all_edge = client_session.read_all_pages('nsxEdges', 'read')
@@ -96,8 +95,6 @@ def check_bgp_options(current_config, graceful_restart, default_originate, local
         current_config['routing']['bgp']['defaultOriginate'] = 'false'
         changed = True
 
-    #c_prot_addr = current_bgp.get('protocolAddress')
-    #c_forwarding_addr = current_bgp.get('forwardingAddress')
     c_localas = current_bgp.get('localAS')
 
     if c_localas != localas:
@@ -107,7 +104,7 @@ def check_bgp_options(current_config, graceful_restart, default_originate, local
     return changed, current_config
 	
 	
-def check_bgp_neighbours(client_session, current_config, bgp_neighbours): #module params
+def check_bgp_neighbours(client_session, current_config, bgp_neighbours): 
     
     changed = False
  
@@ -192,10 +189,9 @@ def main():
     changed_opt, current_config = check_bgp_options(current_config, module.params['graceful_restart'],
                                                      module.params['default_originate'],module.params['localas'])     
   
-    #############################
     changed_neighbour, current_config = check_bgp_neighbours(client_session, current_config, module.params['bgp_neighbours'])
    
-    if (changed_state or changed_rtid or changed_ecmp or changed_opt or changed_neighbour): ##############
+    if (changed_state or changed_rtid or changed_ecmp or changed_opt or changed_neighbour): 
         update_config(client_session, current_config, edge_id)
         module.exit_json(changed=True, current_config=current_config)
     else:
