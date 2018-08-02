@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #coding=utf-8
 
+#Add support for Router-ID and ECMP
+
 
 def get_edge(client_session, edge_name):
 
@@ -184,16 +186,12 @@ def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neig
             if not items in c_neighbour_list:
                 c_neighbour_list.append(items)
 
-        #for new_neighbour in bgp_neighbours:
-             #c_neighbour_list.append(new_neighbour)
-
         resource_body['bgp']['bgpNeighbours'] = {'bgpNeighbour': c_neighbour_list}
         changed = True  
     
         return changed, current_config, resource_body 
 
-    else:
-        
+    else:        
         c_neighbour_list = []
         
         for new_neighbour in bgp_neighbours:
