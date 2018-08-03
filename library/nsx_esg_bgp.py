@@ -124,7 +124,7 @@ def check_bgp_options(current_config, resource_body, graceful_restart, default_o
 
 
 
-def normalize_neighbour_list(neighbour_list):
+def normalize_neighbour_list(neighbour_list, localas):
     new_neighbour_list = []
 
     if neighbour_list:
@@ -159,13 +159,16 @@ def normalize_neighbour_list(neighbour_list):
 
             else:
                 neighbour['weight'] = str(neighbour['weight'])
+            
+            #remove 'removePrivateAS' from neighbour list if iBGP 
+            if localas !=  neighbour.get('remoteAS'):
+                if neighbour.get('removePrivateAS', 'missing') == 'missing':
+                    neighbour['removePrivateAS'] = 'false'
 
-            if neighbour.get('removePrivateAS', 'missing') == 'missing':
-                neighbour['removePrivateAS'] = 'true'
-
+                else:
+                    neighbour['removePrivateAS'] = str(neighbour['removePrivateAS'])
             else:
-                neighbour['removePrivateAS'] = str(neighbour['removePrivateAS'])
-
+                pass                     
 
             if neighbour.get('remoteASNumber', 'missing') == 'missing':
                 neighbour['remoteASNumber'] = neighbour['remoteAS']
@@ -245,7 +248,7 @@ def main():
             default_originate=dict(default=False, type='bool'),
             router_id=dict(required=True, type='str'),
             ecmp=dict(default='false', choices=['true', 'false']),
-	        localas=dict(required=True, type='str'),
+            localas=dict(required=True, type='str'),
             bgp_neighbours=dict(required=True, type='list')
         ),
         supports_check_mode=False
@@ -276,7 +279,7 @@ def main():
     changed_rtid, current_config = check_router_id(current_config, module.params['router_id'])
     changed_ecmp, current_config = check_ecmp(current_config, module.params['ecmp'])
 	
-    valid, msg, neighbour_list = normalize_neighbour_list(module.params['bgp_neighbours'])
+    valid, msg, neighbour_list = normalize_neighbour_list(module.params['bgp_neighbours'], module.params['localas'])
     if not valid:
         module.fail_json(msg=msg)
         
