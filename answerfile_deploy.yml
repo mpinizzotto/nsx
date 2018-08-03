@@ -189,19 +189,18 @@ esg1:
   graceful_restart: 'false'
   ecmp: 'true'
   localas: '65001'
-  
-  #BGP Neighbour Configuration
-  bgp_neighbour:
+
+  bgp:
     n1:
-	  ipaddress: '172.16.31.1' 
-	  remoteas:'65001'
+      ipaddress: '172.16.31.1'
+      remoteas: '65432'
     n2:
-	  ipaddress: '172.16.32.1' 
-	  remoteas:'65001'
+      ipaddress: '172.16.32.1'
+      remoteas: '65432'
     n3:
-	  ipaddress: '10.10.100.9' 
-	  remoteas:'65001'
-	  
+      ipaddress: '10.10.100.15'
+      remoteas: '65001'
+
 #=============================
 
 esg2:
@@ -240,22 +239,19 @@ esg2:
   graceful_restart: 'false'
   ecmp: 'true'
   localas: '65001'
-  
-  #BGP Neighbour Configuration
-  bgp_neighbour:
+                                    
+  bgp:
     n1:
-	  ipaddress: '172.16.31.1' 
-	  remoteas:'65001'
+      ipaddress: '172.16.31.1'
+      remoteas: '65432'
     n2:
-	  ipaddress: '172.16.32.1' 
-	  remoteas:'65001'
+      ipaddress: '172.16.32.1'
+      remoteas: '65432'
     n3:
-	  ipaddress: '10.10.100.9' 
-	  remoteas:'65001'
-	  
+      ipaddress: '10.10.100.15'
+      remoteas: '65001'
 
-################################################
-	  
+
 #OSPF variable definitions
 area_backbone:
   area_id: '0'
@@ -335,15 +331,13 @@ dlr:
     logical_switch: 'LS-APP'
     type: 'internal'  
 
-	
-  #BGP Neighbour Configuration
-  bgp_neighbour:
+  bgp:
     n1:
-	  ipaddress: '10.10.100.1' 
-	  remoteas:'65001'
+      ipaddress: '10.10.100.1'
+      remoteas: '65001'
     n2:
-	  ipaddress: '10.10.100.2' 
-	  remoteas:'65001'	
+      ipaddress: '10.10.100.2'
+      remoteas: '65001'
 
 
 #######################################
