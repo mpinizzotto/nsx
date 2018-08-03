@@ -182,13 +182,26 @@ esg1:
     ip: '10.10.100.1'
     prefix: '24'
     type: 'internal'
-  #OSPF Configuration
+  
+  #Global routing Configuration
   router_id: '172.16.31.2'
   default_originate: 'false'
   graceful_restart: 'false'
   ecmp: 'true'
-
-
+  localas: '65001'
+  
+  #BGP Neighbour Configuration
+  bgp_neighbour:
+    n1:
+	  ipaddress: '172.16.31.1' 
+	  remoteas:'65001'
+    n2:
+	  ipaddress: '172.16.32.1' 
+	  remoteas:'65001'
+    n3:
+	  ipaddress: '10.10.100.9' 
+	  remoteas:'65001'
+	  
 #=============================
 
 esg2:
@@ -220,13 +233,29 @@ esg2:
     ip: '10.10.100.2'
     prefix: '24'
     type: 'internal'
-  #OSPF Configuration
+
+  #Global routing Configuration
   router_id: '172.16.31.3'
   default_originate: 'false'
   graceful_restart: 'false'
   ecmp: 'true'
+  localas: '65001'
+  
+  #BGP Neighbour Configuration
+  bgp_neighbour:
+    n1:
+	  ipaddress: '172.16.31.1' 
+	  remoteas:'65001'
+    n2:
+	  ipaddress: '172.16.32.1' 
+	  remoteas:'65001'
+    n3:
+	  ipaddress: '10.10.100.9' 
+	  remoteas:'65001'
+	  
 
-
+################################################
+	  
 #OSPF variable definitions
 area_backbone:
   area_id: '0'
@@ -244,7 +273,7 @@ area_uplink1:
   #priority:
   #cost:
   ignore_mtu: 'True'
-area_uplink2:
+  area_uplink2:
   area_id: '10'
   vnic: '1'
   hello: '1'
@@ -252,7 +281,7 @@ area_uplink2:
   #priority:
   #cost:
   ignore_mtu: 'True'
-area_transit:
+  area_transit:
   area_id: '10'
   vnic: '2'
   hello: '1'
@@ -284,6 +313,7 @@ dlr:
   protocol_address: '10.10.100.15'
   graceful_restart: 'true'
   ecmp: 'true'
+  localas: '65001'
   #DLR Interface configuration
   #vnic0 maps to uplink interface
   vnic0:
@@ -304,6 +334,16 @@ dlr:
     prefix_len: '24'
     logical_switch: 'LS-APP'
     type: 'internal'  
+
+	
+  #BGP Neighbour Configuration
+  bgp_neighbour:
+    n1:
+	  ipaddress: '10.10.100.1' 
+	  remoteas:'65001'
+    n2:
+	  ipaddress: '10.10.100.2' 
+	  remoteas:'65001'	
 
 
 #######################################
