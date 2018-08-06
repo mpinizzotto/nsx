@@ -82,7 +82,7 @@
       #default_gateway_adminDistance: "{{ esg2.default_gateway_adminDistance }}"
       routes:
         - {network: "{{ prefix1.network }}", next_hop: "{{ prefix1.next_hop }}", description: "{{ prefix1.description }}" }
-        - {network: "{{ prefix2.network }}", next_hop: "{{ prefix2.next_hop }}", description: "{{ prefix2.description }}" }
+        - {network: "{{ prefix3.network }}", next_hop: "{{ prefix3.next_hop }}", description: "{{ prefix3.description }}" }
       remote_access: "{{ esg2.remote_access }}"
       username: "{{ esg2.username }}"
       password: "{{ esg2.password }}"

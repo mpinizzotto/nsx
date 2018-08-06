@@ -19,3 +19,4 @@
 - import_playbook: deploy_esg2.yml
 - import_playbook: deploy_ospf.yml
 - import_playbook: deploy_ospf_route_redist.yml
+- import_playbook: deploy_antiaffinity.yml

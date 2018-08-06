@@ -351,7 +351,12 @@ prefix1:
   next_hop: '10.10.100.9'
   description: 'Summary Route'
 prefix2:
-  name: 'DEFAULT-ROUTE'
+  name:  'REDISTRIBUTE-CONNECTED'
+  network: '172.16.31.0/24'
+  #next_hop:
+  description: 'Connected Routes'
+prefix3:
+  name:  'DEFAULT-ROUTE'
   network: '0.0.0.0/0'
   next_hop: '172.16.31.1'
   description: 'Default Route'
