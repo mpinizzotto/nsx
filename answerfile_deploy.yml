@@ -29,13 +29,13 @@ nsxmgr:
   vcenter: 'vcsa-01.home.local'                      #vcenter where nsx manger will be deployed
   vcenter_user: 'administrator@vsphere.local'
   vcenter_passwd: 'P@ssw0rd123!'
-  
+
 # Uncomment the line below and provide valid license key, otherwise the deployment will fail before preparing the clusters
 license_key: 'XXXXXXXXXXXXXX'
 
 ######################################################################
 # the following section defines the vCenter / vSphere environment
-# to which NSX Manager will be registered to. 
+# to which NSX Manager will be registered to.
 #####################################################################
 
 
@@ -150,8 +150,8 @@ logical_switches:
 
 #global variables
 edge1_datastore: 'SATA_01'
-edge2_datastore: 'SATA_01'                     
-edge_cluster: 'Mgmt-Edge-Home'    
+edge2_datastore: 'SATA_01'
+edge_cluster: 'Mgmt-Edge-Home'
 
 esg1:
   name: 'ESG-01'
@@ -182,7 +182,7 @@ esg1:
     ip: '10.10.100.1'
     prefix: '24'
     type: 'internal'
-  
+
   #Global routing Configuration
   router_id: '172.16.31.2'
   default_originate: 'false'
@@ -239,7 +239,7 @@ esg2:
   graceful_restart: 'false'
   ecmp: 'true'
   localas: '65001'
-                                    
+
   bgp:
     n1:
       ipaddress: '172.16.31.1'
@@ -269,7 +269,7 @@ area_uplink1:
   #priority:
   #cost:
   ignore_mtu: 'True'
-  area_uplink2:
+area_uplink2:
   area_id: '10'
   vnic: '1'
   hello: '1'
@@ -277,7 +277,7 @@ area_uplink1:
   #priority:
   #cost:
   ignore_mtu: 'True'
-  area_transit:
+area_transit:
   area_id: '10'
   vnic: '2'
   hello: '1'
@@ -329,7 +329,7 @@ dlr:
     ip: '10.10.11.1'
     prefix_len: '24'
     logical_switch: 'LS-APP'
-    type: 'internal'  
+    type: 'internal'
 
   bgp:
     n1:
@@ -355,18 +355,3 @@ prefix2:
   network: '0.0.0.0/0'
   next_hop: '172.16.31.1'
   description: 'Default Route'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
