@@ -22,7 +22,7 @@
       rules:
       #Redistribute summary route
         - {learner: 'bgp', priority: 0, static: 'true', connected: 'false', bgp: 'false', ospf: 'false', prefix: "{{ prefix1.name }}", action: 'permit'}
-	  #Redistribute conected
+      #Redistribute conected
         - {learner: 'bgp', priority: 1, static: 'false', connected: 'true', bgp: 'false', ospf: 'false', prefix: "{{ prefix2.name }}", action: 'permit'}
     register: redist
     tags: redist
