@@ -269,7 +269,7 @@ area_uplink1:
   #priority:
   #cost:
   ignore_mtu: 'True'
-  area_uplink2:
+area_uplink2:
   area_id: '10'
   vnic: '1'
   hello: '1'
@@ -277,7 +277,7 @@ area_uplink1:
   #priority:
   #cost:
   ignore_mtu: 'True'
-  area_transit:
+area_transit:
   area_id: '10'
   vnic: '2'
   hello: '1'
