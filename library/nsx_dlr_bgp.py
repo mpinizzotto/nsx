@@ -2,6 +2,7 @@
 #coding=utf-8
 
 #dlr v1: need to add support default gateway
+#suport for logging and loglevel
 
 
 def get_edge(client_session, edge_name):
@@ -18,7 +19,7 @@ def get_edge(client_session, edge_name):
 
 
 def check_bgp_state(current_config):
-    
+
     if 'bgp' in current_config['routing']:
         if current_config['routing']['bgp']['enabled'] == 'true':
             return True
@@ -29,31 +30,31 @@ def check_bgp_state(current_config):
 
 
 def set_bgp_state(resource_body):
-    
+
     resource_body['bgp']['enabled'] = 'true'
     return True, resource_body
-    
+
 
 def check_bgp_as(current_config, resource_body, localas):
-    
+
 
     changed = False
-    
+
     if 'bgp' in current_config['routing']:
 
-        current_bgp = current_config['routing']['bgp']    
+        current_bgp = current_config['routing']['bgp']
         c_localas = current_bgp.get('localAS')
 
         if c_localas != localas:
             resource_body['bgp']['localAS'] = localas
             changed = True
             return changed, resource_body
-        
+
         else:
-           resource_body['bgp']['localAS'] = c_localas            
+           resource_body['bgp']['localAS'] = c_localas
            changed = False
            return changed, resource_body
-    
+
     else:
         resource_body['bgp']['localAS'] = localas
         changed = True
@@ -81,11 +82,11 @@ def check_ecmp(current_config, ecmp):
     else:
         current_config['routing']['routingGlobalConfig']['ecmp'] = ecmp
         return True, current_config
-             
-def check_bgp_options(current_config, resource_body, graceful_restart):     
+
+def check_bgp_options(current_config, resource_body, graceful_restart):
 
     changed = False
-    
+
     if 'bgp' in current_config['routing']:
         current_bgp = current_config['routing']['bgp']
         c_grst_str = current_bgp.get('gracefulRestart', 'false')
@@ -135,12 +136,12 @@ def normalize_neighbour_list(neighbour_list):
                 return False, 'Neighbour list entry {} in your list is missing the mandatory protocolAddress parameter'.format(neighbour.get('protocolAddress', None))
             else:
                 neighbour['protocolAddress'] = str(neighbour['protocolAddress'])
-                  
+
             if neighbour.get('forwardingAddress', 'missing') == 'missing':
                 return False, 'Neighbour list entry {} in your list is missing the mandatory forwardingAddress parameter'.format(neighbour.get('forwardingAddress', None))
             else:
                 neighbour['forwardingAddress'] = str(neighbour['forwardingAddress'])
-                             
+
             if neighbour.get('bgpFilters', 'missing') == 'missing':
                 neighbour['bgpFilters'] = None
 
@@ -170,16 +171,16 @@ def normalize_neighbour_list(neighbour_list):
             else:
                 neighbour['keepAliveTimer'] = str(neighbour['keepAliveTimer'])
             new_neighbour_list.append(neighbour)
-			
+
 
     return True, None, new_neighbour_list
 
 
 
-def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neighbours): 
-    
+def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neighbours):
+
     changed = False
- 
+
     if 'bgp' in current_config['routing']:
 
         if current_config['routing']['bgp']['bgpNeighbours']:
@@ -192,19 +193,19 @@ def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neig
                 c_neighbour_list.append(items)
 
         resource_body['bgp']['bgpNeighbours'] = {'bgpNeighbour': c_neighbour_list}
-        changed = True  
-    
+        changed = True
+
         return changed, current_config, resource_body
- 
-    else:        
+
+    else:
         c_neighbour_list = []
-        
+
         for new_neighbour in bgp_neighbours:
             c_neighbour_list.append(new_neighbour)
 
         resource_body['bgp']['bgpNeighbours'] = {'bgpNeighbour': c_neighbour_list}
         changed = True
-        
+
         return changed, current_config, resource_body
 
 
@@ -260,7 +261,7 @@ def main():
     if module.params['state'] == 'absent' and check_bgp_state(current_config):
         reset_config(client_session, edge_id)
         module.exit_json(changed=True, current_config=None)
-   
+
     elif module.params['state'] == 'absent' and not check_bgp_state(current_config):
         module.exit_json(changed=False, current_config=None)
 
@@ -269,14 +270,14 @@ def main():
     changed_opt, resource_body = check_bgp_options(current_config, resource_body, module.params['graceful_restart'])
     changed_rtid, current_config = check_router_id(current_config, module.params['router_id'])
     changed_ecmp, current_config = check_ecmp(current_config, module.params['ecmp'])
-	
+
     valid, msg, neighbour_list = normalize_neighbour_list(module.params['bgp_neighbours'])
     if not valid:
 	module.fail_json(msg=msg)
-        
+
     changed_neighbours, current_config, resource_body = check_bgp_neighbours(client_session, current_config, resource_body, neighbour_list)
-   
-    if (changed_state or changed_as or changed_opt or changed_neighbours or changed_rtid or changed_ecmp): 
+
+    if (changed_state or changed_as or changed_opt or changed_neighbours or changed_rtid or changed_ecmp):
         update_config(client_session, current_config, edge_id)
         update_config_bgp(client_session, resource_body, edge_id)
         module.exit_json(changed=True, current_config=current_config, resource_body=resource_body)
