@@ -22,11 +22,11 @@ def check_bgp_state(current_config):
 
     if 'bgp' in current_config['routing']:
         if current_config['routing']['bgp']['enabled'] == 'true':
-            return True
-        else:
             return False
+        else:
+            return True
     else:
-        return False
+        return True
 
 
 def set_bgp_state(resource_body):
@@ -110,6 +110,30 @@ def check_bgp_options(current_config, resource_body, graceful_restart):
 
         changed = True
         return changed, resource_body
+
+
+def check_logging(current_config, logging, log_level):
+
+
+    current_logging_cfg = current_config['routing']['routingGlobalConfig']['logging']
+    current_logging_state = current_logging_cfg.get('enable', None)
+    current_log_level_state = current_logging_cfg.get('logLevel', None)
+
+    if current_logging_state == logging and current_log_level_state == log_level:
+        return False, current_config
+
+    elif current_logging_state != logging and current_log_level_state == log_level:
+        current_config['routing']['routingGlobalConfig']['logging']['enable'] = logging
+        return True, current_config
+
+    elif current_logging_state == logging and current_log_level_state != log_level:
+        current_config['routing']['routingGlobalConfig']['logging']['logLevel'] = log_level
+        return True, current_config
+
+    else:
+        current_config['routing']['routingGlobalConfig']['logging']['enable'] = logging
+        current_config['routing']['routingGlobalConfig']['logging']['logLevel'] = log_level
+        return True, current_config
 
 
 
@@ -241,7 +265,10 @@ def main():
             router_id=dict(required=True, type='str'),
             ecmp=dict(default='false', choices=['true', 'false']),
             localas=dict(required=True, type='str'),
-            bgp_neighbours=dict(required=True, type='list')
+            bgp_neighbours=dict(required=True, type='list'),
+            logging=dict(default=False, type='bool'),
+            log_level=dict(default='info', choices=['debug', 'info', 'notice', 'warning', 'error', 'critical', 
+                                                    'alert', 'emergency'], type='str'),
         ),
         supports_check_mode=False
     )
@@ -270,6 +297,7 @@ def main():
     changed_opt, resource_body = check_bgp_options(current_config, resource_body, module.params['graceful_restart'])
     changed_rtid, current_config = check_router_id(current_config, module.params['router_id'])
     changed_ecmp, current_config = check_ecmp(current_config, module.params['ecmp'])
+    changed_logging, current_config = check_logging(current_config, module.params['logging'], module.params['log_level'])
 
     valid, msg, neighbour_list = normalize_neighbour_list(module.params['bgp_neighbours'])
     if not valid:
@@ -277,7 +305,7 @@ def main():
 
     changed_neighbours, current_config, resource_body = check_bgp_neighbours(client_session, current_config, resource_body, neighbour_list)
 
-    if (changed_state or changed_as or changed_opt or changed_neighbours or changed_rtid or changed_ecmp):
+    if (changed_state or changed_as or changed_opt or changed_neighbours or changed_rtid or changed_ecmp or changed_logging):
         update_config(client_session, current_config, edge_id)
         update_config_bgp(client_session, resource_body, edge_id)
         module.exit_json(changed=True, current_config=current_config, resource_body=resource_body)
@@ -286,5 +314,6 @@ def main():
 
 
 from ansible.module_utils.basic import *
+
 if __name__ == '__main__':
     main()
