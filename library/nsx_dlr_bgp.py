@@ -2,7 +2,7 @@
 #coding=utf-8
 
 #dlr v1: need to add support default gateway
-#test comment
+#suport for logging and loglevel
 
 
 def get_edge(client_session, edge_name):
