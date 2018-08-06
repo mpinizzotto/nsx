@@ -1,7 +1,7 @@
 
 ---
 
-- name: Configuring Route Redistribution 
+- name: Configuring BGP Route Redistribution 
   hosts: localhost
   connection: local
   gather_facts: False
@@ -10,7 +10,7 @@
   
   tasks:
 
-  - name: Configure Redistribution "{{ esg1.name }}"
+  - name: Configure BGP Redistribution "{{ esg1.name }}"
     nsx_redistribution:
       ospf_state: absent
       bgp_state: present
@@ -27,7 +27,7 @@
     register: redist
     tags: redist
 
-  - name: Configure Redistribution "{{ esg2.name }}"
+  - name: Configure BGP Redistribution "{{ esg2.name }}"
     nsx_redistribution:
       ospf_state: absent
       bgp_state: present
@@ -44,7 +44,7 @@
     register: redist
     tags: redist
 
-  - name: Configure OSPF Redistribution "{{ dlr.name }}"
+  - name: Configure BGP Redistribution "{{ dlr.name }}"
     nsx_redistribution:
       ospf_state: absent
       bgp_state: present
