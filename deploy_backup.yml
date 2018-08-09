@@ -14,13 +14,14 @@
     nsx_backup:
       nsxmanager_spec: "{{ nsxmanager_spec }}"
       state: present
-      name: 'admin'
+      name: 'markiemark'
       password: 'password'
-      transfer_protocol: 'SFTP'
-      ip_addr: '172.16.78.23'
-      backup_directory: '/path'
-      file_name_prefix: 'nsx-'
-      pass_phrase: 'mypass'
+      transfer_protocol: 'FTP'      #choices = ['FTP,'SFTP']
+      ip_addr: '192.168.56.78'
+      port: '21'
+      backup_directory: 'test/dir/path'
+      file_name_prefix: 'mynsx-'
+      pass_phrase: 'pass'
       #backup_frequency:
     register: ftp_settings
 
