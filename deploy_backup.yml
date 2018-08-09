@@ -1,0 +1,27 @@
+
+---
+
+- name: Configuring NSX Manager Backup
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: Configuring FTP settings
+    nsx_backup:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      name: 'admin'
+      password: 'password'
+      transfer_protocol: 'SFTP'
+      ip_addr: '172.16.78.23'
+      backup_directory: '/path'
+      file_name_prefix: 'nsx-'
+      pass_phrase: 'mypass'
+      #backup_frequency:
+    register: ftp_settings
+
+  - debug: var=ftp_settings
