@@ -170,7 +170,7 @@ def normalize_neighbour_list(neighbour_list):
                 neighbour['bgpFilters'] = None
 
             else:
-                neighbour['holdDownTimer'] = str(neighbour['holdDownTimer'])
+                pass
 
             if neighbour.get('holdDownTimer', 'missing') == 'missing':
                 neighbour['holdDownTimer'] = '180'
@@ -267,7 +267,7 @@ def main():
             localas=dict(required=True, type='str'),
             bgp_neighbours=dict(required=True, type='list'),
             logging=dict(default=False, type='bool'),
-            log_level=dict(default='info', choices=['debug', 'info', 'notice', 'warning', 'error', 'critical', 
+            log_level=dict(default='info', choices=['debug', 'info', 'notice', 'warning', 'error', 'critical',
                                                     'alert', 'emergency'], type='str'),
         ),
         supports_check_mode=False
