@@ -22,7 +22,7 @@
       backup_directory: 'test/dir/path'
       file_name_prefix: 'mynsx-'
       pass_phrase: 'pass'
-      #backup_frequency:
-    register: ftp_settings
+      backup_schedule: { 'frequency': 'WEEKLY', 'dayOfWeek': 'MONDAY', 'hourOfDay': '0', 'minuteOfHour': '0' }
+    register: backup_settings
 
-  - debug: var=ftp_settings
+  - debug: var=backup_settings
