@@ -1,7 +1,8 @@
-
 #!/usr/bin/env python
 #coding=utf-8
 
+
+__author__  = "matt.pinizzotto@wwt.com"
 
 def get_ftp_config(session):
     if session.read('applianceMgrBackupSettings')['body'] is not None:
@@ -44,9 +45,8 @@ def update_schedule_config(session, schedule):
                            request_body_dict=schedule_create_body)['status']
 
 
-def normalize_schedule(backup_schedule): #pass in back_up module params
+def normalize_schedule(backup_schedule):
 
-    
     if backup_schedule is not None:
         for item in backup_schedule:
             if not isinstance(item, dict):
@@ -112,44 +112,31 @@ def normalize_schedule(backup_schedule): #pass in back_up module params
 
 
 def check_ftp(ftp_config, module):
-
-    changed = False
     
-    if ftp_config['userName'] == module.params['name']:
-        changed = False     
-    else:
+    if ftp_config['userName'] != module.params['name']:
+        changed = True     
+        
+    elif ftp_config['transferProtocol'] != module.params['transfer_protocol']:
         changed = True
         
-    if ftp_config['transferProtocol'] == module.params['transfer_protocol']:
-        changed = False
-    else:
+    elif ftp_config['hostNameIPAddress'] != module.params['ip_addr']:
         changed = True
         
-    if ftp_config['hostNameIPAddress'] == module.params['ip_addr']:
-        changed = False
-    else:
-        changed = True
-        
-    if ftp_config['backupDirectory'] == module.params['backup_directory']:
-        changed = False
-    else:
+    elif ftp_config['backupDirectory'] != module.params['backup_directory']:
         changed = True
 
-    if ftp_config['filenamePrefix'] == module.params['file_name_prefix']:
-        changed = False
-    else:
+    elif ftp_config['filenamePrefix'] != module.params['file_name_prefix']:
+        changed = True
+
+    elif module.params['password'] is not None:
         changed = True
     
-    if module.params['password'] is not None:
+    elif module.params['pass_phrase'] is not None:
         changed = True
-    else:
-	    changed = False
-		
-    if module.params['pass_phrase'] is not None:
-        changed = True
+    
     else:
         changed = False
-
+    
     return changed
 
 def check_schedule(schedule_config, schedule):
@@ -158,10 +145,6 @@ def check_schedule(schedule_config, schedule):
     if cmp(schedule_config, schedule) is not 0:
         changed = True
         return changed
-    #for items in schedule:
-    #    if schedule[items] != schedule_config[items]:
-    #        changed = True
-    #        return changed
     else:
         return changed
 
@@ -197,57 +180,6 @@ def main():
     session = NsxClient(module.params['nsxmanager_spec']['raml_file'], module.params['nsxmanager_spec']['host'],
                   module.params['nsxmanager_spec']['user'], module.params['nsxmanager_spec']['password'])
 	
-	
-    #ftp_changed = False
-    #schedule_changed = False
-	#			  
-    #ftp_config = get_ftp_config(session)
-    #schedule_config = get_schedule_config(session)
-	#
-    #if ftp_config or schedule_config and module.params['state'] == 'absent':
-    #    delete_config(session)
-    #    ftp_changed = True
-	#	schedule_changed = True
-	#
-	#if ftp_changed:
-	#    module.exit_json(changed=True, ftp_config='1')
-	#    
-    #
-    #if module.params['state'] == module.params['state'] 'absent' and ftp_config:
-    #    delete_config(session)
-    #    module.exit_json(changed=True, ftp_config='4')
-    #
-    #elif module.params['state'] == 'absent' and not ftp_config:
-    #    module.exit_json(changed=False, ftp_config='3')
-    # 
-    #if module.params['state'] == 'present' and ftp_config:
-    #    ftp_changed = check_ftp(ftp_config, module) #check if ftp changed
-    #else:
-    #    ftp_changed = True
-    #
-    #if schedule_config:
-    #    valid, msg, schedule = normalize_schedule(module.params['backup_schedule']) #normalize list
-    #    if not valid:
-    #        module.fail_json(msg=msg)
-    #
-    #    schedule_changed = check_schedule(schedule_config, schedule) #compare config against normalized list is changed?
-    #
-    #if ftp_changed or schedule_changed:
-    #    if ftp_changed:
-	#	    delete_config(session)
-    #        time.sleep(10)
-    #        update_ftp_config(session, module)
-	#    if schedule_changed:
-    #        update_schedule_config(session, schedule)
-    #
-	#	module.exit_json(changed=True, ftp_config=ftp_config, schedule_config='1')
-    #else:
-    #    module.exit_json(changed=False, ftp_config=ftp_config, schedule_config='2')
-    #
-	#	
-	#	
-	#	
-	#---------------------------------------------	
 		
     ftp_changed = False
     schedule_changed = False
@@ -257,43 +189,43 @@ def main():
 
     if ftp_config and module.params['state'] == 'absent':
         delete_config(session)
-        module.exit_json(changed=True, ftp_config='1')
+        module.exit_json(changed=True, ftp_config=ftp_config, schedule_config=schedule_config)
 	
-	if not ftp_config and module.params['state'] == 'absent':
-	    module.exit_json(changed=True, ftp_config='2')
+	if ftp_config == None and module.params['state'] == 'absent':
+	    module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
 
     if not ftp_config and module.params['state'] == 'present':
         update_ftp_config(session, module)
         ftp_changed = True
      
     if not schedule_config and module.params['state'] == 'present':
-        valid, msg, schedule = normalize_schedule(module.params['backup_schedule']) #normalize list
+        valid, msg, schedule = normalize_schedule(module.params['backup_schedule']) 
         if not valid:
             module.fail_json(msg=msg) 
         update_schedule_config(session, schedule)
         schedule_changed = True
 		
-    if ftp_config:
-        ftp_settings_changed = check_ftp(ftp_config, module) #check if ftp changed
-        if ftp_settings_changed:
+    if ftp_config is not None:
+        ftp_settings_changed = check_ftp(ftp_config, module) 
+        if ftp_settings_changed == True:
             update_ftp_config(session, module)
             ftp_changed = True
 
 
-    if schedule_config:
-        valid, msg, schedule = normalize_schedule(module.params['backup_schedule']) #normalize list
+    if schedule_config is not None:
+        valid, msg, schedule = normalize_schedule(module.params['backup_schedule']) 
         if not valid:
             module.fail_json(msg=msg)
-        schedule_settings_changed = check_schedule(schedule_config, schedule) #compare config against normalized list is changed?
-        if schedule_settings_changed:
+        schedule_settings_changed = check_schedule(schedule_config, schedule) 
+        if schedule_settings_changed == True:
             delete_schedule(session)        
             update_schedule_config(session, schedule)
             schedule_changed = True
 
     if ftp_changed or schedule_changed:
-        module.exit_json(changed=True, ftp_config='3')
+        module.exit_json(changed=True, ftp_config=ftp_config, schedule_config=schedule_config)
     else:
-        module.exit_json(changed=False, ftp_config='4')
+        module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
 
 
 from ansible.module_utils.basic import *
