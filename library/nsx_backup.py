@@ -190,9 +190,9 @@ def main():
     if ftp_config and module.params['state'] == 'absent':
         delete_config(session)
         module.exit_json(changed=True, ftp_config=ftp_config, schedule_config=schedule_config)
-	
-	if ftp_config == None and module.params['state'] == 'absent':
-	    module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
+
+    if ftp_config == None and module.params['state'] == 'absent':
+        module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
 
     if not ftp_config and module.params['state'] == 'present':
         update_ftp_config(session, module)
@@ -204,7 +204,7 @@ def main():
             module.fail_json(msg=msg) 
         update_schedule_config(session, schedule)
         schedule_changed = True
-		
+
     if ftp_config is not None:
         ftp_settings_changed = check_ftp(ftp_config, module) 
         if ftp_settings_changed == True:
