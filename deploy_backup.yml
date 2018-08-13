@@ -10,19 +10,22 @@
 
   tasks:
 
-  - name: Configuring FTP settings
+  - name: Configuring NSX Manager Backup settings
     nsx_backup:
       nsxmanager_spec: "{{ nsxmanager_spec }}"
-      state: present
-      name: 'markiemark'
-      password: 'password'
-      transfer_protocol: 'FTP'      #choices = ['FTP,'SFTP']
-      ip_addr: '192.168.56.78'
-      port: '21'
-      backup_directory: 'test/dir/path'
-      file_name_prefix: 'mynsx-'
-      pass_phrase: 'pass'
-      backup_schedule: { 'frequency': 'WEEKLY', 'dayOfWeek': 'MONDAY', 'hourOfDay': '0', 'minuteOfHour': '0' }
+      state: absent
+      name: 'ftpuser'
+      password: 'P@ssw0rd'
+      transfer_protocol: 'SFTP'      #choices = ['FTP,'SFTP']
+      ip_addr: '172.16.30.65'
+      port: '22'
+      backup_directory: 'backups'
+      file_name_prefix: 'newnsx-'
+      pass_phrase: 'password'
+      backup_schedule:
+        #- { 'frequency': 'weekly', 'dayOfWeek': 'tuesday', 'hourOfDay': '2', 'minuteOfHour': '15' }
+        - { 'frequency': 'daily', 'hourOfDay': '2', 'minuteOfHour': '15' }
+        #- { 'frequency': 'HOURLY', 'minuteOfHour': '15' }   
     register: backup_settings
 
-  - debug: var=backup_settings
+  #- debug: var=backup_settings
