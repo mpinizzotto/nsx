@@ -36,7 +36,7 @@ def update_ftp_config(session, module):
 						   'port': module.params['port']}
                       }
     return session.update('applianceMgrBackupSettingsFtp',
-                           request_body_dict=ftp_create_body)['status']
+                           request_body_dict=ftp_create_body)['status'], ftp_create_body
 
 
 def update_schedule_config(session, schedule):
@@ -110,9 +110,9 @@ def normalize_schedule(backup_schedule):
 
         return True, None, schedule
 
-
 def check_ftp(ftp_config, module):
     
+    changed = False
     if ftp_config['userName'] != module.params['name']:
         changed = True     
         
@@ -130,13 +130,13 @@ def check_ftp(ftp_config, module):
 
     elif module.params['password'] is not None:
         changed = True
-    
+     
     elif module.params['pass_phrase'] is not None:
         changed = True
     
     else:
         changed = False
-    
+     
     return changed
 
 def check_schedule(schedule_config, schedule):
@@ -208,7 +208,7 @@ def main():
     if ftp_config is not None:
         ftp_settings_changed = check_ftp(ftp_config, module) 
         if ftp_settings_changed == True:
-            update_ftp_config(session, module)
+            ftp = update_ftp_config(session, module)
             ftp_changed = True
 
 
@@ -223,7 +223,7 @@ def main():
             schedule_changed = True
 
     if ftp_changed or schedule_changed:
-        module.exit_json(changed=True, ftp_config=ftp_config, schedule_config=schedule_config)
+        module.exit_json(changed=True, ftp_config=ftp, schedule_config=schedule_config)
     else:
         module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
 
