@@ -20,6 +20,17 @@ def get_schedule_config(session):
             return None
     else:
         return None
+        
+        
+def get_exclude_config(session):
+    if session.read('applianceMgrBackupSettings')['body'] is not None:
+        response = session.read('applianceMgrBackupSettings')['body']
+        try:
+            return response['backupRestoreSettings']['excludeTables']['excludeTable']
+        except:
+            return None
+    else:
+        return None
 
 def update_ftp_config(session, module):
     ftp_create_body = {'ftpSettings':
@@ -44,6 +55,13 @@ def update_schedule_config(session, schedule):
     return session.update('applianceMgrBackupSettingsSchedule',
                            request_body_dict=schedule_create_body)['status']
 
+                           
+def update_exclude_config(session, module):
+    exclude_create_body = {'excludeTables': { 'excludeTable': module.params['exclude_list'] }}
+    session.update('applianceMgrBackupSettingsExclude',
+                           request_body_dict=exclude_create_body)['status']
+                           
+                           
 
 def normalize_schedule(backup_schedule):
 
@@ -128,6 +146,7 @@ def check_ftp(ftp_config, module):
     elif ftp_config['filenamePrefix'] != module.params['file_name_prefix']:
         changed = True
 
+    #TODO: update password/passphrase this to check if module params exist
     elif module.params['password'] is not None:
         changed = True
      
@@ -140,9 +159,18 @@ def check_ftp(ftp_config, module):
     return changed
 
 def check_schedule(schedule_config, schedule):
-
     changed = False
+    
     if cmp(schedule_config, schedule) is not 0:
+        changed = True
+        return changed
+    else:
+        return changed
+        
+def check_exclude(exclude_config, module):
+    changed = False
+    
+    if cmp(exclude_config, module.params['exclude_list']) is not 0:
         changed = True
         return changed
     else:
@@ -154,8 +182,7 @@ def delete_config(session):
 	
 def delete_schedule(session):
     return session.delete('applianceMgrBackupSettingsSchedule')
-
-
+    
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -170,6 +197,7 @@ def main():
             file_name_prefix=dict(type='str'),
             pass_phrase=dict(required=True, no_log=True, type='str'),
             backup_schedule=dict(required=True, type='list'),
+            exclude_list=dict(type='list'),
         ),
         supports_check_mode=False
     )
@@ -183,9 +211,11 @@ def main():
 		
     ftp_changed = False
     schedule_changed = False
+    exclude_changed = False
 
     ftp_config = get_ftp_config(session)
     schedule_config = get_schedule_config(session)
+    exclude_config = get_exclude_config(session)
 
     if ftp_config and module.params['state'] == 'absent':
         delete_config(session)
@@ -195,7 +225,7 @@ def main():
         module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
 
     if not ftp_config and module.params['state'] == 'present':
-        update_ftp_config(session, module)
+        ftp = update_ftp_config(session, module)
         ftp_changed = True
      
     if not schedule_config and module.params['state'] == 'present':
@@ -204,6 +234,11 @@ def main():
             module.fail_json(msg=msg) 
         update_schedule_config(session, schedule)
         schedule_changed = True
+    
+    if module.params['exclude_list']:    
+        if not exclude_config and module.params['state'] == 'present':
+            exclude = update_exclude_config(session, module)
+            exclude_changed = True
 
     if ftp_config is not None:
         ftp_settings_changed = check_ftp(ftp_config, module) 
@@ -221,8 +256,15 @@ def main():
             delete_schedule(session)        
             update_schedule_config(session, schedule)
             schedule_changed = True
+    
+    if module.params['exclude_list']:    
+        if exclude_config is not None:
+            exclude_settings_changed = check_exclude(exclude_config, module) 
+            if exclude_settings_changed == True:
+                exclude = update_exclude_config(session, module)
+                exclude_changed = True
 
-    if ftp_changed or schedule_changed:
+    if ftp_changed or schedule_changed or exclude_changed:
         module.exit_json(changed=True, ftp_config=ftp, schedule_config=schedule_config)
     else:
         module.exit_json(changed=False, ftp_config=ftp_config, schedule_config=schedule_config)
@@ -231,4 +273,6 @@ def main():
 from ansible.module_utils.basic import *
 if __name__ == '__main__':
     main()
+
+
 
