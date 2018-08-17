@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 #coding=utf-8
 
-
 __author__ = "matt.pinizzotto@wwt.com"
-
 
 
 def get_edge(client_session, edge_name):
     all_edge = client_session.read_all_pages('nsxEdges', 'read')
-
     try:
         edge_params = [scope for scope in all_edge if scope['name'] == edge_name][0]
         edge_id = edge_params['objectId']
@@ -16,7 +13,6 @@ def get_edge(client_session, edge_name):
         return None, None
 
     return edge_id, edge_params
-
 
 def check_bgp_state(current_config):
     if 'bgp' in current_config['routing']:
@@ -27,17 +23,22 @@ def check_bgp_state(current_config):
     else:
         return False
 
-
-def set_bgp_state(resource_body):
-    resource_body['bgp']['enabled'] = 'true'
-    return True, resource_body
-
+def set_bgp_state(current_config, resource_body):
+    if 'bgp' in current_config['routing']:
+        if current_config['routing']['bgp']['enabled'] == 'false':
+            resource_body['bgp']['enabled'] = 'true'
+            return True, resource_body
+        else:
+            resource_body['bgp']['enabled'] = 'true'
+            return True, resource_body
+    else:
+        resource_body['bgp']['enabled'] = 'true'
+        return True, resource_body
 
 def check_bgp_as(current_config, resource_body, localas):
     changed = False
 
     if 'bgp' in current_config['routing']:
-
         current_bgp = current_config['routing']['bgp']
         c_localas = current_bgp.get('localAS')
 
@@ -54,6 +55,7 @@ def check_bgp_as(current_config, resource_body, localas):
     else:
         resource_body['bgp']['localAS'] = localas
         changed = True
+
         return changed, resource_body
 
 
@@ -77,6 +79,7 @@ def check_ecmp(current_config, ecmp):
         current_config['routing']['routingGlobalConfig']['ecmp'] = ecmp
         return True, current_config
 
+ 
 def check_bgp_options(current_config, resource_body, graceful_restart):
     changed = False
 
@@ -100,10 +103,9 @@ def check_bgp_options(current_config, resource_body, graceful_restart):
 
     else:
         resource_body['bgp']['gracefulRestart'] = graceful_restart
-
         changed = True
-        return changed, resource_body
 
+        return changed, resource_body
 
 
 def normalize_neighbour_list(neighbour_list):
@@ -137,9 +139,8 @@ def normalize_neighbour_list(neighbour_list):
 
             if neighbour.get('bgpFilters', 'missing') == 'missing':
                 neighbour['bgpFilters'] = None
-
             else:
-                neighbour['holdDownTimer'] = str(neighbour['holdDownTimer'])
+                pass
 
             if neighbour.get('holdDownTimer', 'missing') == 'missing':
                 neighbour['holdDownTimer'] = '180'
@@ -165,16 +166,13 @@ def normalize_neighbour_list(neighbour_list):
                 neighbour['keepAliveTimer'] = str(neighbour['keepAliveTimer'])
             new_neighbour_list.append(neighbour)
 
-
     return True, None, new_neighbour_list
-
 
 
 def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neighbours):
     changed = False
-
+    
     if 'bgp' in current_config['routing']:
-
         if current_config['routing']['bgp']['bgpNeighbours']:
             c_neighbour_list = client_session.normalize_list_return(current_config['routing']['bgp']['bgpNeighbours']['bgpNeighbour'])
         else:
@@ -201,7 +199,6 @@ def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neig
         return changed, current_config, resource_body
 
 
-
 def get_current_config(client_session, edge_id):
     response = client_session.read('routingConfig', uri_parameters={'edgeId': edge_id})
     return response['body']
@@ -221,7 +218,6 @@ def update_config_bgp(client_session, resource_body, edge_id):
     client_session.update('routingBGP', uri_parameters={'edgeId': edge_id}, request_body_dict=resource_body)
 
 
-
 def reset_config(client_session, edge_id):
     client_session.delete('routingConfig', uri_parameters={'edgeId': edge_id})
 
@@ -236,7 +232,7 @@ def main():
             router_id=dict(required=True, type='str'),
             ecmp=dict(default='false', choices=['true', 'false']),
             localas=dict(required=True, type='str'),
-            bgp_neighbours=dict(required=True, type='list')
+            bgp_neighbours=dict(required=True, type='list'),
         ),
         supports_check_mode=False
     )
@@ -260,22 +256,22 @@ def main():
     elif module.params['state'] == 'absent' and not check_bgp_state(current_config):
         module.exit_json(changed=False, current_config=None)
 
-    changed_state, resource_body = set_bgp_state(resource_body)
+    changed_state, resource_body = set_bgp_state(current_config, resource_body)
     changed_as, resource_body = check_bgp_as(current_config, resource_body, module.params['localas'])
     changed_opt, resource_body = check_bgp_options(current_config, resource_body, module.params['graceful_restart'])
-    changed_rtid, current_config = check_router_id(current_config, module.params['router_id'])
     changed_ecmp, current_config = check_ecmp(current_config, module.params['ecmp'])
+    changed_rtid, current_config = check_router_id(current_config, module.params['router_id'])
 
     valid, msg, neighbour_list = normalize_neighbour_list(module.params['bgp_neighbours'])
     if not valid:
-	module.fail_json(msg=msg)
-
+	      module.fail_json(msg=msg)
+    
     changed_neighbours, current_config, resource_body = check_bgp_neighbours(client_session, current_config, resource_body, neighbour_list)
 
     if (changed_state or changed_as or changed_opt or changed_neighbours or changed_rtid or changed_ecmp):
         update_config(client_session, current_config, edge_id)
         update_config_bgp(client_session, resource_body, edge_id)
-        module.exit_json(changed=True, current_config=current_config, resource_body=resource_body)
+        module.exit_json(changed=True, current_config=current_config, resource_body=resource_body)        
     else:
         module.exit_json(changed=False, current_config=current_config, resource_body=resource_body)
 

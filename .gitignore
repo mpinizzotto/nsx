@@ -1,3 +1,6 @@
 
-*.xml
+.idea/workspace.xml
+.idea/vcs.xml
 .idea/nsx.iml
+.idea/modules.xml
+.idea/misc.xml
