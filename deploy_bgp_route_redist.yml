@@ -1,0 +1,58 @@
+
+---
+
+- name: Configuring BGP Route Redistribution 
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+  
+  tasks:
+
+  - name: Configure BGP Redistribution "{{ esg1.name }}"
+    nsx_redistribution:
+      ospf_state: absent
+      bgp_state: present
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      edge_name: "{{ esg1.name }}"
+      prefixes:
+        - {name: "{{ prefix1.name }}", network: "{{ prefix1.network }}" }
+        - {name: "{{ prefix2.name }}", network: "{{ prefix2.network }}" }
+      rules:
+      #Redistribute summary route
+        - {learner: 'bgp', priority: 0, static: 'true', connected: 'false', bgp: 'false', ospf: 'false', prefix: "{{ prefix1.name }}", action: 'permit'}
+      #Redistribute conected
+        - {learner: 'bgp', priority: 1, static: 'false', connected: 'true', bgp: 'false', ospf: 'false', prefix: "{{ prefix2.name }}", action: 'permit'}
+    register: redist
+    tags: redist
+
+  - name: Configure BGP Redistribution "{{ esg2.name }}"
+    nsx_redistribution:
+      ospf_state: absent
+      bgp_state: present
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      edge_name: "{{ esg2.name }}"
+      prefixes:
+        - {name: "{{ prefix1.name }}", network: "{{ prefix1.network }}" }
+        - {name: "{{ prefix2.name }}", network: "{{ prefix2.network }}" } 
+      rules:
+      #Redistribute summary route 
+        - {learner: 'bgp', priority: 0, static: 'true', connected: 'false', bgp: 'false', ospf: 'false', prefix: "{{ prefix1.name }}", action: 'permit'}
+      #Redistribute connected
+        - {learner: 'bgp', priority: 1, static: 'false', connected: 'true', bgp: 'false', ospf: 'false', prefix: "{{ prefix2.name }}", action: 'permit'}
+    register: redist
+    tags: redist
+
+  - name: Configure BGP Redistribution "{{ dlr.name }}"
+    nsx_redistribution:
+      ospf_state: absent
+      bgp_state: present
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      edge_name: "{{ dlr.name }}"
+      rules:
+       #Redistributes connected routes - uncomment if needed
+        #- {learner: 'bgp', priority: 0, static: false, connected: true, bgp: false, ospf: false, action: 'permit'}
+    register: redist
+    tags: redist
+

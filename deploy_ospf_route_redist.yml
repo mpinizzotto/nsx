@@ -29,7 +29,7 @@
       ospf_state: present
       bgp_state: absent
       nsxmanager_spec: "{{ nsxmanager_spec }}"
-      edge_name: "{{ esg1.name }}"
+      edge_name: "{{ esg2.name }}"
       prefixes:
         - {name: "{{ prefix1.name }}", network: "{{ prefix1.network }}" }
       rules:
