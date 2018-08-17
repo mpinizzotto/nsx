@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-# added support for rtid and ecmp
-# fix gracefult restart not working issue
-# needs support for default gateway and logging
+
+__author__  = "matt.pinizzotto@wwt.com"
+
+
 
 def get_edge(client_session, edge_name):
     all_edge = client_session.read_all_pages('nsxEdges', 'read')
@@ -36,7 +37,6 @@ def check_bgp_as(current_config, resource_body, localas):
     changed = False
 
     if 'bgp' in current_config['routing']:
-
         current_bgp = current_config['routing']['bgp']
         c_localas = current_bgp.get('localAS')
 
@@ -53,12 +53,14 @@ def check_bgp_as(current_config, resource_body, localas):
     else:
         resource_body['bgp']['localAS'] = localas
         changed = True
+
         return changed, resource_body
 
 
 def check_router_id(current_config, router_id):
     current_routing_cfg = current_config['routing']['routingGlobalConfig']
     current_router_id = current_routing_cfg.get('routerId', None)
+
     if current_router_id == router_id:
         return False, current_config
     else:
@@ -69,6 +71,7 @@ def check_router_id(current_config, router_id):
 def check_ecmp(current_config, ecmp):
     current_ecmp_cfg = current_config['routing']['routingGlobalConfig']
     current_ecmp_state = current_ecmp_cfg.get('ecmp', None)
+
     if current_ecmp_state == ecmp:
         return False, current_config
     else:
@@ -113,8 +116,8 @@ def check_bgp_options(current_config, resource_body, graceful_restart, default_o
     else:
         resource_body['bgp']['gracefulRestart'] = graceful_restart
         resource_body['bgp']['defaultOriginate'] = default_originate
-
         changed = True
+
         return changed, resource_body
 
 
@@ -156,7 +159,7 @@ def normalize_neighbour_list(neighbour_list, localas):
             else:
                 neighbour['weight'] = str(neighbour['weight'])
 
-            # remove 'removePrivateAS' from neighbour list if iBGP
+            #remove 'removePrivateAS' from neighbour list if iBGP
             if localas != neighbour.get('remoteAS'):
                 if neighbour.get('removePrivateAS', 'missing') == 'missing':
                     neighbour['removePrivateAS'] = 'false'
@@ -205,7 +208,6 @@ def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neig
 
     else:
         c_neighbour_list = []
-
         for new_neighbour in bgp_neighbours:
             c_neighbour_list.append(new_neighbour)
 

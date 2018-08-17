@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #coding=utf-8
 
-#dlr v1: need to add support default gateway
+
+__author__ = "matt.pinizzotto@wwt.com"
+
 
 
 def get_edge(client_session, edge_name):
-
     all_edge = client_session.read_all_pages('nsxEdges', 'read')
 
     try:
@@ -18,7 +19,6 @@ def get_edge(client_session, edge_name):
 
 
 def check_bgp_state(current_config):
-
     if 'bgp' in current_config['routing']:
         if current_config['routing']['bgp']['enabled'] == 'true':
             return True
@@ -29,14 +29,11 @@ def check_bgp_state(current_config):
 
 
 def set_bgp_state(resource_body):
-
     resource_body['bgp']['enabled'] = 'true'
     return True, resource_body
 
 
 def check_bgp_as(current_config, resource_body, localas):
-
-
     changed = False
 
     if 'bgp' in current_config['routing']:
@@ -61,7 +58,6 @@ def check_bgp_as(current_config, resource_body, localas):
 
 
 def check_router_id(current_config, router_id):
-
     current_routing_cfg = current_config['routing']['routingGlobalConfig']
     current_router_id = current_routing_cfg.get('routerId', None)
 
@@ -72,7 +68,6 @@ def check_router_id(current_config, router_id):
         return True, current_config
 
 def check_ecmp(current_config, ecmp):
-
     current_ecmp_cfg = current_config['routing']['routingGlobalConfig']
     current_ecmp_state = current_ecmp_cfg.get('ecmp', None)
 
@@ -83,7 +78,6 @@ def check_ecmp(current_config, ecmp):
         return True, current_config
 
 def check_bgp_options(current_config, resource_body, graceful_restart):
-
     changed = False
 
     if 'bgp' in current_config['routing']:
@@ -177,7 +171,6 @@ def normalize_neighbour_list(neighbour_list):
 
 
 def check_bgp_neighbours(client_session, current_config, resource_body, bgp_neighbours):
-
     changed = False
 
     if 'bgp' in current_config['routing']:
@@ -213,6 +206,7 @@ def get_current_config(client_session, edge_id):
     response = client_session.read('routingConfig', uri_parameters={'edgeId': edge_id})
     return response['body']
 
+
 def get_resource_body(client_session):
     response = client_session.extract_resource_body_example('routingBGP', 'update')
     return response
@@ -222,6 +216,7 @@ def update_config(client_session, current_config, edge_id):
     client_session.update('routingConfig', uri_parameters={'edgeId': edge_id},
                           request_body_dict=current_config)
 
+
 def update_config_bgp(client_session, resource_body, edge_id):
     client_session.update('routingBGP', uri_parameters={'edgeId': edge_id}, request_body_dict=resource_body)
 
@@ -229,6 +224,7 @@ def update_config_bgp(client_session, resource_body, edge_id):
 
 def reset_config(client_session, edge_id):
     client_session.delete('routingConfig', uri_parameters={'edgeId': edge_id})
+
 
 def main():
     module = AnsibleModule(
