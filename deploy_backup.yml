@@ -23,8 +23,8 @@
       file_name_prefix: 'new-'
       pass_phrase: 'mypassphrase'
       backup_schedule:
-        - { 'frequency': 'weekly', 'dayOfWeek': 'tuesday', 'hourOfDay': '2', 'minuteOfHour': '15' }
-        - { 'frequency': 'daily', 'hourOfDay': '2', 'minuteOfHour': '15' }
+        #- { 'frequency': 'weekly', 'dayOfWeek': 'tuesday', 'hourOfDay': '2', 'minuteOfHour': '15' }
+        #- { 'frequency': 'daily', 'hourOfDay': '2', 'minuteOfHour': '15' }
         - { 'frequency': 'HOURLY', 'minuteOfHour': '15' }   
       exclude_list:      #choices =  "AUDIT_LOGS", "SYSTEM_EVENTS", "FLOW_RECORDS"
         - "AUDIT_LOGS"
