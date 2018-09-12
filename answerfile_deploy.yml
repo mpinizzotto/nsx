@@ -31,7 +31,7 @@ nsxmgr:
   vcenter_passwd: 'P@ssw0rd123!'
 
 # Uncomment the line below and provide valid license key, otherwise the deployment will fail before preparing the clusters
-license_key: 'XXXXXXXXXXXXXX'
+license_key: 'XXXXXXXXXXXXXXX'
 
 ######################################################################
 # the following section defines the vCenter / vSphere environment
@@ -152,6 +152,9 @@ logical_switches:
 edge1_datastore: 'SATA_01'
 edge2_datastore: 'SATA_01'
 edge_cluster: 'Mgmt-Edge-Home'
+logging: 'true'
+log_level: 'warning'
+
 
 esg1:
   name: 'ESG-01'
