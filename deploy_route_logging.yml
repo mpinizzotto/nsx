@@ -15,8 +15,8 @@
       nsxmanager_spec: "{{ nsxmanager_spec }}"
       state: present
       edge_name: "{{ esg1.name }}"
-      logging: "true"
-      log_level: "warning"       # choices=['debug', 'info', 'notice', 'warning', 'error', 'critical','alert', 'emergency']
+      logging: "{{ logging }}"
+      log_level: "{{ log_level }}"       # choices=['debug', 'info', 'notice', 'warning', 'error', 'critical','alert', 'emergency']
     register: logging_esg
     tags: logging_esg
 
@@ -26,8 +26,8 @@
       nsxmanager_spec: "{{ nsxmanager_spec }}"
       state: present
       edge_name: "{{ esg2.name }}"
-      logging: "true"
-      log_level: "critical"
+      logging:  "{{ logging }}"
+      log_level: "{{ log_level }}"
     register: logging_esg
     tags: logging_esg
      
@@ -37,8 +37,8 @@
       nsxmanager_spec: "{{ nsxmanager_spec }}"
       state: present
       edge_name: "{{ dlr.name }}"
-      logging: "true"
-      log_level: "alert"
+      logging:  "{{ logging }}"
+      log_level: "{{ log_level }}"
     register: logging_dlr
     tags: logging_dlr
 
