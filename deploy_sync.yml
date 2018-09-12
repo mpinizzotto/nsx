@@ -1,0 +1,18 @@
+
+---
+
+- name: Configuring NSX Manager Universal Sync Settings
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+  - name: Configuring NSX Manager Role to "Role"
+    nsx_manager_sync:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: absent
+      role: "primary"     #choices = ['primary', 'standalone']
+    register: sync_settings
+  #- debug: var=sync_settings
