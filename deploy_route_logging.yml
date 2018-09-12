@@ -1,0 +1,44 @@
+
+---
+
+- name: Configuring Logging on Edge Devices
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+
+  tasks:
+
+  - name: Configure logging on "{{ esg1.name }}"
+    nsx_route_logging:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      edge_name: "{{ esg1.name }}"
+      logging: "true"
+      log_level: "warning"       # choices=['debug', 'info', 'notice', 'warning', 'error', 'critical','alert', 'emergency']
+    register: logging_esg
+    tags: logging_esg
+
+
+  - name: Configure logging on "{{ esg2.name }}"
+    nsx_route_logging:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      edge_name: "{{ esg2.name }}"
+      logging: "true"
+      log_level: "critical"
+    register: logging_esg
+    tags: logging_esg
+     
+
+  - name: Configure logging on "{{ dlr.name }}"
+    nsx_route_logging:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      edge_name: "{{ dlr.name }}"
+      logging: "true"
+      log_level: "alert"
+    register: logging_dlr
+    tags: logging_dlr
+
