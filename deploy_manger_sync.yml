@@ -12,7 +12,7 @@
   - name: Configuring NSX Manager Role to "Role"
     nsx_manager_sync:
       nsxmanager_spec: "{{ nsxmanager_spec }}"
-      state: absent
+      state: present
       role: "primary"     #choices = ['primary', 'standalone']
     register: sync_settings
   #- debug: var=sync_settings
