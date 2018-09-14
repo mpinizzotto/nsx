@@ -1,0 +1,27 @@
+---
+
+- name: Changing firewall status "{{ dlr.name }}"
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+     - answerfile_deploy.yml
+     
+  tasks:
+  
+  - name: Changing firewall status "{{ dlr.name }}"
+    nsx_dlr_fw_status:
+      nsxmanager_spec: "{{ nsxmanager_spec }}"
+      state: present
+      name: "{{ dlr.name }}"
+      firewall: "{{ dlr.firewall }}"
+    register: dlr_fw_status
+    tags: dlr_fw_status
+
+  #- debug: var=dlr_fw_status
+  #  tags: debug
+
+
+
+
+
